@@ -81,6 +81,8 @@ pub fn build(b: *std.Build) void {
     const dotenv_dep = b.dependency("dotenv", .{ .target = target });
     const dotenv_mod = dotenv_dep.module("dotenv");
     exe.root_module.addImport("dotenv", dotenv_mod);
+    const deserialize = b.addModule("deserialize", .{ .root_source_file = .{ .cwd_relative = "src/deserialize.zig" } });
+    exe.root_module.addImport("deserialize", deserialize);
 
     // This creates a build step. It will be visible in the `zig build --help` menu,
     // and can be selected like this: `zig build run`
