@@ -36,7 +36,7 @@ pub const SerializedToken = struct {
                 const str = try value.readToEndAlloc(allocator, 4096);
                 const token_data = try std.json.parseFromSlice(InnerToken, allocator, str, .{ .ignore_unknown_fields = true, .parse_numbers = true });
                 defer value.close(); // Cierra el archivo abierto, dentro de este scope.
-                std.debug.print("Using token: {s}\n", .{token_data.value.token});
+                std.debug.print("Retrieved token: {s}\n", .{token_data.value.token});
                 break :blk .{ token_data.value.token, token_data.value.expiration_timestamp };
             } else |err| {
                 switch (err) {
@@ -52,14 +52,10 @@ pub const SerializedToken = struct {
                         break :blk .{ token, expiration_timestamp };
                     },
 
-                    else => {
-                        std.debug.print("El error es aca", .{});
-                        return err;
-                    },
+                    else => return err,
                 }
             }
         };
-
         const ret = SerializedToken{ .expiration_timestamp = expiration_timestamp, .token = token, .arena = allocator };
         return ret;
     }
@@ -77,6 +73,7 @@ pub const SerializedToken = struct {
     pub fn retrieve(self: *SerializedToken) ![]const u8 {
         const current_timestamp = @divTrunc(std.time.milliTimestamp(), 1000);
         if (current_timestamp > self.expiration_timestamp) {
+            std.debug.print("Current token is void. Updating token.", .{});
             try self.update();
         }
         return self.token;
