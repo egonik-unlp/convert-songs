@@ -2,7 +2,9 @@ const std = @import("std");
 const http = std.http;
 const fmt = std.fmt;
 const dotenv = @import("dotenv");
+const dumpfile = "dump.a";
 const album_code = "06zWjeOA3MwBHLApKUS3Qs?si=LkxC6rN9QhmXiY67dQ6QYQ";
+const TokenTuple = std.meta.Tuple(&.{ []u8, []u8 });
 const SpotifyResponse = struct {
     access_token: []u8,
     token_type: []u8,
@@ -11,45 +13,86 @@ const SpotifyResponse = struct {
 
 const InnerToken = struct { token: []const u8, expiration_timestamp: i64 };
 
+// Tengo que decidir bien cuando setear el timestamp de guardado
 const SerializedToken = struct {
     expiration_timestamp: i64,
-    token: []u8,
+    token: []const u8,
     arena: std.mem.Allocator,
     fn init(allocator: std.mem.Allocator) !SerializedToken {
-        const filename = "dump.a";
+        const filename = dumpfile;
         const cwd = std.fs.cwd();
         const file = cwd.openFile(filename, .{});
-        const token, const expiration_timestamp = if (file) |value| {
-            const str = try value.readToEndAlloc(allocator, 4096);
-            const token_data = try std.json.parseFromSlice(InnerToken, allocator, str, .{ .ignore_unknown_fields = true });
-            &.{ token_data.value.token, token_data.value.expiration_timestamp };
-        } else |err| {
-            switch (err) {
-                std.fs.File.OpenError.FileNotFound => get_token(allocator),
-                else => err,
+        // const token, const expiration_timestamp =
+        const token, const expiration_timestamp = blk: {
+            if (file) |value| {
+                const str = try value.readToEndAlloc(allocator, 4096);
+                const token_data = try std.json.parseFromSlice(InnerToken, allocator, str, .{ .ignore_unknown_fields = true, .parse_numbers = true });
+                break :blk .{ token_data.value.token, token_data.value.expiration_timestamp };
+            } else |err| {
+                switch (err) {
+                    std.fs.File.OpenError.FileNotFound => {
+                        std.debug.print("Entra cre\n", .{});
+                        const token, const void_timestamp = try get_token(allocator);
+                        const num_timestamp = try std.fmt.parseInt(i32, void_timestamp, 10);
+                        const expiration_timestamp = num_timestamp + std.time.microTimestamp();
+                        const dump_data = InnerToken{ .expiration_timestamp = expiration_timestamp, .token = token };
+                        const dumpu8 = try std.json.stringifyAlloc(allocator, dump_data, .{});
+                        const filew = try std.fs.cwd().openFile(dumpfile, .{});
+                        try filew.writeAll(dumpu8);
+
+                        break :blk .{ token, expiration_timestamp };
+                    },
+                    else => return err,
+                }
             }
         };
+
         const ret = SerializedToken{ .expiration_timestamp = expiration_timestamp, .token = token, .arena = allocator };
         return ret;
     }
-    fn retrieve(self: SerializedToken) []u8 {
+    fn update(self: *SerializedToken) !void {
+        std.debug.print("Entra up", .{});
+        const token, const void_timestamp = try get_token(self.arena);
+        const num_timestamp = try std.fmt.parseInt(i32, void_timestamp, 10);
+        const expiration_timestamp = num_timestamp + std.time.microTimestamp();
+        self.expiration_timestamp = expiration_timestamp;
+        self.token = token;
+        const dump_data = InnerToken{ .expiration_timestamp = expiration_timestamp, .token = token };
+        const dumpu8 = try std.json.stringifyAlloc(self.arena, dump_data, .{});
+        const file = try std.fs.cwd().openFile(dumpfile, .{});
+        try file.writeAll(dumpu8);
+    }
+    fn retrieve(self: *SerializedToken) ![]const u8 {
+        if (std.time.microTimestamp() > self.expiration_timestamp) {
+            try self.update();
+        }
         return self.token;
     }
 };
 
+test "holds token" {
+    const testing = std.testing.allocator;
+    var local_arena = std.heap.ArenaAllocator.init(testing);
+    defer local_arena.deinit();
+    var token_wrapper = try SerializedToken.init(local_arena.allocator());
+    const token1 = try token_wrapper.retrieve();
+    var token_wrapper2 = try SerializedToken.init(local_arena.allocator());
+    const token2 = try token_wrapper2.retrieve();
+    try std.testing.expectEqual(token1, token2);
+}
 test "gets token" {
     const testing = std.testing.allocator;
     var local_arena = std.heap.ArenaAllocator.init(testing);
     defer local_arena.deinit();
-    const token_wrapper = try SerializedToken.init(local_arena.allocator());
-    const token1 = token_wrapper.retrieve();
-    const token_wrapper2 = try SerializedToken.init(local_arena.allocator());
-    const token2 = token_wrapper2.retrieve();
-    std.testing.expectEqual(token1, token2);
+    var token_wrapper = try SerializedToken.init(local_arena.allocator());
+    const token = try token_wrapper.retrieve();
+    std.debug.print("{s}", .{token});
+    try std.testing.expect(true);
 }
+
 const AlbumRequest = @import("deserialize").AutoGenerated;
 
-fn get_token(allo: std.mem.Allocator) ![2][]u8 {
+fn get_token(allo: std.mem.Allocator) !TokenTuple {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     var local_arena = std.heap.ArenaAllocator.init(gpa.allocator());
     defer local_arena.deinit();
@@ -62,11 +105,14 @@ fn get_token(allo: std.mem.Allocator) ![2][]u8 {
     var response = std.ArrayList(u8).init(local_arena.allocator());
     const options = http.Client.FetchOptions{ .response_storage = .{ .dynamic = &response }, .method = .POST, .payload = body, .server_header_buffer = &buf, .headers = headers, .location = http.Client.FetchOptions.Location{ .uri = url } };
     _ = try client.fetch(options);
-    const obj = try std.json.parseFromSlice(SpotifyResponse, allo, response.items, .{});
+    std.debug.print("\n{s}\n", .{response.items});
+    const obj = try std.json.parseFromSlice(SpotifyResponse, allo, response.items, .{ .ignore_unknown_fields = true });
     const token = obj.value.access_token;
     const expiration = obj.value.expires_in;
-    std.debug.print("Token expires in = {}", .{obj.value.expires_in});
-    return .{ token, expiration };
+    // std.debug.print("Token expires in = {}", .{obj.value.expires_in});
+    const ret: TokenTuple = .{ token, expiration };
+    std.debug.print("salimos vivos?", .{});
+    return ret;
 }
 fn get_dotenv(allocator: std.mem.Allocator) ![2][]const u8 {
     var envs = try dotenv.getDataFrom(allocator, ".env");
@@ -101,7 +147,11 @@ pub fn main() !void {
     defer arena.deinit();
     const args = try std.process.argsAlloc(arena.allocator());
     const path = if (args.len >= 2) args[1] else unreachable;
-    const token = try get_token(arena.allocator());
+    var tokener = try SerializedToken.init(arena.allocator());
+    const tok = try tokener.retrieve();
+    std.debug.print("tokeneerr {s}", .{tok});
+    const token, const a = try get_token(arena.allocator());
+    _ = a;
     const api_response = try make_sample_request(
         token,
         arena.allocator(),
