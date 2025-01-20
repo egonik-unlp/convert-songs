@@ -1,3 +1,5 @@
 .env
 zig-out/
 .zig-cache/
+dump.a
+album.json
