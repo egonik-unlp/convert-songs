@@ -28,24 +28,10 @@ pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     var arena = std.heap.ArenaAllocator.init(gpa.allocator());
     defer arena.deinit();
-    const args = try std.process.argsAlloc(arena.allocator());
-    const path = if (args.len >= 2) args[1] else {
-        std.debug.print("Provide a spotify album code\n", .{});
-        return;
-    };
     var tokener = try SerializedToken.init(arena.allocator());
     const token = try tokener.retrieve();
     std.debug.print("Request made using token : {s}\n", .{token});
-    const api_response = try make_sample_request(
-        token,
-        arena.allocator(),
-        path,
-    );
-    const resp = api_response.items;
-    try write_to_json(resp);
-    const laika = try deserialize(resp, arena.allocator());
-    std.debug.print("Tracks = {s}\n", .{laika.tracks.href});
-    std.debug.print("Artista = {s}\n", .{laika.artists[0].name});
+
     const track_search = try TrackSearch.make_request(
         arena.allocator(),
         &tokener,
@@ -59,6 +45,23 @@ pub fn main() !void {
     for (track_search.tracks.items, 0..) |result, num| {
         std.debug.print("\nResult number : {d}\nartist : {s} trackname : {s} albumname: {s}", .{ num, result.artists[0].name, result.name, result.album.name });
     }
+
+    const args = try std.process.argsAlloc(arena.allocator());
+    const path = if (args.len >= 2) args[1] else {
+        std.debug.print("Provide a spotify album code\n", .{});
+        return;
+    };
+
+    const api_response = try make_sample_request(
+        token,
+        arena.allocator(),
+        path,
+    );
+    const resp = api_response.items;
+    try write_to_json(resp);
+    const laika = try deserialize(resp, arena.allocator());
+    std.debug.print("Tracks = {s}\n", .{laika.tracks.href});
+    std.debug.print("Artista = {s}\n", .{laika.artists[0].name});
 }
 
 fn write_to_json(response: []const u8) !void {
