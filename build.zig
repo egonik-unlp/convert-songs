@@ -81,14 +81,17 @@ pub fn build(b: *std.Build) void {
     const dotenv_dep = b.dependency("dotenv", .{ .target = target });
     const dotenv_mod = dotenv_dep.module("dotenv");
     exe.root_module.addImport("dotenv", dotenv_mod);
-    const deserialize = b.addModule("deserialize", .{ .root_source_file = .{ .cwd_relative = "src/deserialize.zig" } });
-    exe.root_module.addImport("deserialize", deserialize);
+    const album = b.addModule("album", .{ .root_source_file = .{ .cwd_relative = "src/deserialize/album.zig" } });
+    exe.root_module.addImport("album", album);
+    const track = b.addModule("track", .{ .root_source_file = .{ .cwd_relative = "src/deserialize/track.zig" } });
+    exe.root_module.addImport("track", track);
     // This creates a build step. It will be visible in the `zig build --help` menu,
     // and can be selected like this: `zig build run`
     // This will evaluate the `run` step rather than the default, which is "install".
     const spotify_token = b.addModule("spotify-token", .{ .root_source_file = .{ .cwd_relative = "src/spotify_token.zig" } });
     exe.root_module.addImport("spotify-token", spotify_token);
     spotify_token.addImport("dotenv", dotenv_mod);
+    track.addImport("spotify-token", spotify_token);
 
     const run_step = b.step("run", "Run the app");
     run_step.dependOn(&run_cmd.step);

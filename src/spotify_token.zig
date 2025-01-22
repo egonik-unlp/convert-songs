@@ -73,7 +73,7 @@ pub const SerializedToken = struct {
     pub fn retrieve(self: *SerializedToken) ![]const u8 {
         const current_timestamp = @divTrunc(std.time.milliTimestamp(), 1000);
         if (current_timestamp > self.expiration_timestamp) {
-            std.debug.print("Current token is void. Updating token.", .{});
+            std.debug.print("Current token is void. Updating token...", .{});
             try self.update();
         }
         return self.token;
