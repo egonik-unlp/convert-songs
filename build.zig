@@ -85,6 +85,8 @@ pub fn build(b: *std.Build) void {
     exe.root_module.addImport("album", album);
     const track = b.addModule("track", .{ .root_source_file = .{ .cwd_relative = "src/deserialize/track.zig" } });
     exe.root_module.addImport("track", track);
+    const file_extractor = b.addModule("file-extractor", .{ .root_source_file = .{ .cwd_relative = "src/walker/file_extractor.zig" } });
+    exe.root_module.addImport("file-extractor", file_extractor);
     // This creates a build step. It will be visible in the `zig build --help` menu,
     // and can be selected like this: `zig build run`
     // This will evaluate the `run` step rather than the default, which is "install".

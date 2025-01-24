@@ -1,0 +1,15 @@
+pub const TAG_BEGIN = 128;
+pub const TAG_L = 0;
+pub const TAG_R = 3;
+pub const SONG_L = 3;
+pub const SONG_R = 33;
+pub const ARTIST_L = 33;
+pub const ARTIST_R = 63;
+pub const ALBUM_L = 63;
+pub const ALBUM_R = 93;
+pub const YEAR_L = 93;
+pub const YEAR_R = 97;
+pub const COMMENT_L = 97;
+pub const COMMENT_R = 127;
+pub const GENRE_L = 127;
+pub const GENRE_R = 128;
