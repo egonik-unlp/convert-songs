@@ -82,6 +82,7 @@ pub const TrackSearchResult = struct {
         var local_buffer = std.ArrayList(u8).init(local_arena.allocator());
         const token = try tokener.retrieve();
         const bearer = try std.fmt.allocPrint(local_arena.allocator(), "Bearer {s}", .{token});
+
         const request = try client.fetch(.{
             .server_header_buffer = null,
             .headers = .{ .authorization = .{ .override = bearer } },

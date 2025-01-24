@@ -13,8 +13,8 @@ pub fn get_song_names(path: []const u8, allocator: std.mem.Allocator) !std.Array
         if (pepe.kind == .file) {
             const absolute_path = try std.fs.path.join(arena.allocator(), &.{ path, pepe.path });
             const file_handle = try std.fs.openFileAbsolute(absolute_path, .{ .mode = .read_write });
-            const bytes = try file_handle.readToEndAlloc(arena.allocator(), 1e10);
-            const song = try SongMetadata.build(bytes, allocator);
+            const bytes = try file_handle.readToEndAlloc(allocator, 1e10);
+            const song = SongMetadata.build(bytes);
             if (song != null) {
                 try songs.append(song.?);
             }
@@ -30,9 +30,9 @@ pub const SongMetadata = struct {
     year: []u8,
     comment: []u8,
     genre: []u8,
-    pub fn build(buffer: []u8, allocator: std.mem.Allocator) !?SongMetadata {
+    pub fn build(buffer: []u8) ?SongMetadata {
         var metadata = buffer[buffer.len - c.TAG_BEGIN .. buffer.len];
-        var song = try allocator.create(SongMetadata);
+        var song: SongMetadata = undefined;
         if (eql(u8, metadata[c.TAG_L..c.TAG_R], "TAG")) {
             song.song = metadata[c.SONG_L..c.SONG_R];
             song.artist = metadata[c.ARTIST_L..c.ARTIST_R];
@@ -40,7 +40,7 @@ pub const SongMetadata = struct {
             song.year = metadata[c.YEAR_L..c.YEAR_R];
             song.comment = metadata[c.COMMENT_L..c.COMMENT_R];
             song.genre = metadata[c.GENRE_L..c.GENRE_R];
-            return song.*;
+            return song;
         } else {
             return null;
         }
