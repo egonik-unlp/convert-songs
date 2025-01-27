@@ -22,24 +22,36 @@ pub fn get_song_names(path: []const u8, allocator: std.mem.Allocator) !std.Array
     }
     return songs;
 }
+
+fn nullbytedetect(string: []const u8) []const u8 {
+    var endpos: usize = string.len;
+    for (string, 0..) |char, index| {
+        if (char == 0) {
+            endpos = index;
+            break;
+        }
+    }
+    return string[0..endpos];
+}
 const SongMetadataRanges = enum { song, album, artist, year, comment, genre };
 pub const SongMetadata = struct {
-    song: []u8,
-    album: []u8,
-    artist: []u8,
-    year: []u8,
-    comment: []u8,
-    genre: []u8,
+    song: []const u8,
+    album: []const u8,
+    artist: []const u8,
+    year: []const u8,
+    comment: []const u8,
+    genre: []const u8,
     pub fn build(buffer: []u8) ?SongMetadata {
         var metadata = buffer[buffer.len - c.TAG_BEGIN .. buffer.len];
         var song: SongMetadata = undefined;
         if (eql(u8, metadata[c.TAG_L..c.TAG_R], "TAG")) {
-            song.song = metadata[c.SONG_L..c.SONG_R];
-            song.artist = metadata[c.ARTIST_L..c.ARTIST_R];
-            song.album = metadata[c.ALBUM_L..c.ALBUM_R];
-            song.year = metadata[c.YEAR_L..c.YEAR_R];
-            song.comment = metadata[c.COMMENT_L..c.COMMENT_R];
-            song.genre = metadata[c.GENRE_L..c.GENRE_R];
+            const temp_song = metadata[c.SONG_L..c.SONG_R];
+            song.song = nullbytedetect(temp_song);
+            song.artist = nullbytedetect(metadata[c.ARTIST_L..c.ARTIST_R]);
+            song.album = nullbytedetect(metadata[c.ALBUM_L..c.ALBUM_R]);
+            song.year = nullbytedetect(metadata[c.YEAR_L..c.YEAR_R]);
+            song.comment = nullbytedetect(metadata[c.COMMENT_L..c.COMMENT_R]);
+            song.genre = nullbytedetect(metadata[c.GENRE_L..c.GENRE_R]);
             return song;
         } else {
             return null;

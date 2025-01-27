@@ -36,17 +36,17 @@ pub fn main() !void {
     const songs_in_dir = try get_song_names("/home/gonik/Music", arena.allocator());
     std.debug.print("Canciones son {d}\n", .{songs_in_dir.items.len});
     for (songs_in_dir.items) |song| {
-        std.debug.print("Entering loop\nsong: {s}", .{song});
+        std.debug.print("song_query: {s}\n", .{song});
         const result = try TrackSearch.make_request(
             arena.allocator(),
             &tokener,
             song.song,
             song.album,
             song.artist,
-            1,
+            2,
         );
         const track = result.tracks.items[0];
-        std.debug.print("{s} {s} {s}", .{ track.name, track.artists[0].name, track.album.name });
+        std.debug.print("song_result:  {s} {s} {s}\n", .{ track.name, track.artists[0].name, track.album.name });
     }
     const args = try std.process.argsAlloc(arena.allocator());
     const path = if (args.len >= 2) args[1] else {
