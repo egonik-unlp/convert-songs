@@ -45,8 +45,7 @@ pub const SongMetadata = struct {
         var metadata = buffer[buffer.len - c.TAG_BEGIN .. buffer.len];
         var song: SongMetadata = undefined;
         if (eql(u8, metadata[c.TAG_L..c.TAG_R], "TAG")) {
-            const temp_song = metadata[c.SONG_L..c.SONG_R];
-            song.song = nullbytedetect(temp_song);
+            song.song = nullbytedetect(metadata[c.SONG_L..c.SONG_R]);
             song.artist = nullbytedetect(metadata[c.ARTIST_L..c.ARTIST_R]);
             song.album = nullbytedetect(metadata[c.ALBUM_L..c.ALBUM_R]);
             song.year = nullbytedetect(metadata[c.YEAR_L..c.YEAR_R]);
