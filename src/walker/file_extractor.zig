@@ -33,7 +33,6 @@ fn nullbytedetect(string: []const u8) []const u8 {
     }
     return string[0..endpos];
 }
-const SongMetadataRanges = enum { song, album, artist, year, comment, genre };
 pub const SongMetadata = struct {
     song: []const u8,
     album: []const u8,
