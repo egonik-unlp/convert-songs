@@ -15,6 +15,13 @@ const PlaylistRequest = struct {
         return try std.json.stringifyAlloc(allocator, self, .{});
     }
 };
+const ExtendPlaylistRequest = struct {
+    uris: [][]const u8,
+    position: u8,
+    pub fn build(uris: [][]const u8, position: u8) ExtendPlaylistRequest {
+        return ExtendPlaylistRequest{ .uris = uris, .position = position };
+    }
+};
 
 pub const Playlist = struct {
     user_name: []const u8,
@@ -61,7 +68,7 @@ pub const Playlist = struct {
         var list = std.ArrayList([]u8).init(self.allocator);
         for (tracks) |trackinfo| {
             const single_track = trackinfo.tracks.items[0];
-            try list.append(single_track.href);
+            try list.append(single_track.uri);
         }
         self.tracks = list.items;
     }
@@ -75,18 +82,18 @@ pub const Playlist = struct {
             const chunk = self.tracks.?[so_far..@intCast(next_chunk_len)];
             for (chunk) |track| {
                 if (!eql(u8, track, " ")) {
-                    std.debug.print("TRACK \n{s}\n ENDTRACK", .{track});
-                    const appendable = try std.fmt.allocPrint(self.allocator, "{s},", .{track});
-                    std.debug.print("trk : {s}\n", .{appendable});
+                    const appendable = try std.fmt.allocPrint(self.allocator, "{s}", .{track});
                     try queue.append(appendable);
                 }
             }
-            const payload = try std.fmt.allocPrint(self.allocator, "uris={s}", .{queue.items});
+            const pre_payload = ExtendPlaylistRequest.build(queue.items, 0);
+            const payload = try std.json.stringifyAlloc(self.allocator, pre_payload, .{});
+            std.debug.print("payload = {s}", .{payload});
             var tokener = try SerializedToken.init(self.allocator);
             const token = try tokener.retrieve();
             _ = token;
             const bearer = try std.fmt.allocPrint(self.allocator, "Bearer {s}", .{token2});
-            const url = try std.fmt.allocPrint(self.allocator, "https://api.spotify.com/v1/playlists/{s}", .{self.id.?});
+            const url = try std.fmt.allocPrint(self.allocator, "https://api.spotify.com/v1/playlists/{s}/tracks", .{self.id.?});
             const uri = try std.Uri.parse(url);
             var storage = std.ArrayList(u8).init(self.allocator);
             const options = std.http.Client.FetchOptions{
@@ -103,7 +110,8 @@ pub const Playlist = struct {
             std.debug.print("\nPL=\n{s}\n", .{payload});
             var client = std.http.Client{ .allocator = self.allocator };
             const response = try client.fetch(options);
-            _ = response;
+            std.debug.print("{}", .{response.status});
+            std.debug.print("{s}", .{storage.items});
             so_far += next_chunk_len;
             next_chunk_len = @min(100, remainder);
             remainder -= next_chunk_len;

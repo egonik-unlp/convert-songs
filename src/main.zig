@@ -37,7 +37,7 @@ pub fn main() !void {
     try playlist.create();
 
     std.debug.print("Request made using token : {s}\n", .{token});
-    const songs_in_dir = try get_song_names("/home/gonik/Music/Nicotine/Wuzzelbud KK", arena.allocator());
+    const songs_in_dir = try get_song_names("/home/gonik/Music/Nicotine/", arena.allocator());
 
     std.debug.print("Canciones son {d}\n", .{songs_in_dir.items.len});
     var song_results = std.ArrayList(TrackSearch).init(arena.allocator());
