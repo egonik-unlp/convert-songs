@@ -100,6 +100,10 @@ pub const TrackSearchResult = struct {
         });
         _ = request;
         const response = try std.json.parseFromSlice(TrackSearchResult, allocator, local_buffer.items, .{ .ignore_unknown_fields = true });
+        errdefer {
+            std.debug.print("Failed with {s}\n", .{response.value});
+            std.debug.print("Song params : {} {} {} ", .{ track_name, album_name, artist_name });
+        }
         return response.value;
     }
 };

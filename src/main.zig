@@ -7,6 +7,7 @@ const TrackSearch = @import("track").TrackSearchResult;
 const get_song_names = @import("file-extractor").get_song_names;
 const SongMetadata = @import("file-extractor").SongMetadata;
 const Playlist = @import("playlist").Playlist;
+
 fn make_sample_request(token: []const u8, alloc: std.mem.Allocator, album_id: []const u8) !std.ArrayList(u8) {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     var local_arena = std.heap.ArenaAllocator.init(gpa.allocator());
@@ -36,7 +37,7 @@ pub fn main() !void {
     try playlist.create();
 
     std.debug.print("Request made using token : {s}\n", .{token});
-    const songs_in_dir = try get_song_names("/home/gonik/Music", arena.allocator());
+    const songs_in_dir = try get_song_names("/home/gonik/Music/Nicotine/Wuzzelbud KK", arena.allocator());
 
     std.debug.print("Canciones son {d}\n", .{songs_in_dir.items.len});
     var song_results = std.ArrayList(TrackSearch).init(arena.allocator());
@@ -52,10 +53,15 @@ pub fn main() !void {
         );
         try song_results.append(result);
         const track = result.tracks.items[0];
-
+        errdefer std.debug.print("Failing query {s} {s} {s}", .{ song.song, song.album, song.artist });
         std.debug.print("song_result:  {s} {s} {s}\n", .{ track.name, track.artists[0].name, track.album.name });
     }
-    playlist.populate(song_results.items);
+    try playlist.populate(song_results.items);
+    for (playlist.tracks.?) |track| {
+        std.debug.print("track in p {any}", .{track});
+    }
+    try playlist.create();
+    try playlist.upload();
     const args = try std.process.argsAlloc(arena.allocator());
     const path = if (args.len >= 2) args[1] else {
         std.debug.print("Provide a spotify album code\n", .{});
@@ -68,16 +74,9 @@ pub fn main() !void {
         path,
     );
     const resp = api_response.items;
-    try write_to_json(resp);
     const laika = try deserialize(resp, arena.allocator());
     std.debug.print("Tracks = {s}\n", .{laika.tracks.href});
     std.debug.print("Artista = {s}\n", .{laika.artists[0].name});
-}
-
-fn write_to_json(response: []const u8) !void {
-    const cwd = std.fs.cwd();
-    const file = try cwd.createFile("album.json", .{});
-    try file.writeAll(response);
 }
 
 fn deserialize(response: []const u8, alloc: std.mem.Allocator) !AlbumRequest {
