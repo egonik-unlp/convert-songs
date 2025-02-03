@@ -87,6 +87,10 @@ pub fn build(b: *std.Build) void {
     exe.root_module.addImport("track", track);
     const file_extractor = b.addModule("file-extractor", .{ .root_source_file = .{ .cwd_relative = "src/walker/file_extractor.zig" } });
     exe.root_module.addImport("file-extractor", file_extractor);
+    const playlist = b.addModule("playlisy", .{ .root_source_file = .{ .cwd_relative = "src/deserialize/playlist.zig" } });
+    exe.root_module.addImport("playlist", playlist);
+    playlist.addImport("track", track);
+
     // This creates a build step. It will be visible in the `zig build --help` menu,
     // and can be selected like this: `zig build run`
     // This will evaluate the `run` step rather than the default, which is "install".
@@ -94,10 +98,9 @@ pub fn build(b: *std.Build) void {
     exe.root_module.addImport("spotify-token", spotify_token);
     spotify_token.addImport("dotenv", dotenv_mod);
     track.addImport("spotify-token", spotify_token);
-
+    playlist.addImport("spotify-token", spotify_token);
     const run_step = b.step("run", "Run the app");
     run_step.dependOn(&run_cmd.step);
-
     // Creates a step for unit testing. This only builds the test executable
     // but does not run it.
 
