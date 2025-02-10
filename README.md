@@ -22,7 +22,7 @@ For now, and until I get around to making a real API for it, there are a few con
 - Spotify's client_id and client_secret should be included in a .env file in the root directory
 - The directory name is hardcoded and set at compile time via the songs_in_dir variable in the main.zig file.
 - The target playlist name and description are again hardcoded in this line in the playlist.zig file
-`const body = try PlaylistRequest.build("culo", "prueba desc", true, false).stringify(self.allocator);` 
+```const body = try PlaylistRequest.build("culo", "prueba desc", true, false).stringify(self.allocator);```
 where the first two params are said settings.
 - This program does not work in windows yet because the .env parsing library I used does not support windows. 
 I will implement this logic manually in the future.
