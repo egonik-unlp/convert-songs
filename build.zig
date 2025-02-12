@@ -90,6 +90,8 @@ pub fn build(b: *std.Build) void {
     const playlist = b.addModule("playlisy", .{ .root_source_file = .{ .cwd_relative = "src/deserialize/playlist.zig" } });
     exe.root_module.addImport("playlist", playlist);
     playlist.addImport("track", track);
+    const server = b.addModule("server", .{ .root_source_file = .{ .cwd_relative = "src/server/server.zig" } });
+    exe.root_module.addImport("server", server);
 
     // This creates a build step. It will be visible in the `zig build --help` menu,
     // and can be selected like this: `zig build run`
@@ -103,13 +105,16 @@ pub fn build(b: *std.Build) void {
     run_step.dependOn(&run_cmd.step);
     // Creates a step for unit testing. This only builds the test executable
     // but does not run it.
+    const httpz_depend = b.dependency("httpz", .{ .target = target, .optimize = optimize });
+    const httpz_mod = httpz_depend.module("httpz");
+    exe.root_module.addImport("httpz", httpz_mod);
+    server.addImport("httpz", httpz_mod);
 
     const exe_unit_tests = b.addTest(.{
         .root_module = exe_mod,
     });
     exe_unit_tests.root_module.addImport("dotenv", dotenv_mod);
     const run_exe_unit_tests = b.addRunArtifact(exe_unit_tests);
-
     // Similar to creating the run step earlier, this exposes a `test` step to
     // the `zig build --help` menu, providing a way for the user to request
     // running the unit tests.
