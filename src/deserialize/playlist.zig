@@ -1,8 +1,10 @@
 const std = @import("std");
+const net = std.net;
 const TrackSearchResult = @import("track").TrackSearchResult;
 const SerializedToken = @import("spotify-token").SerializedToken;
-const token2 = "BQCUirNZeebzqGtPJ7YqRQ6GLyEtBDM62_PyVzfF0QrzTabZllajWxgR6ogNIhKoHbXUxGZcvtIPzz15Rxm7RcOQrjIGfeLy_J1gDfkjLNNT-CCQ_iq_cgbhUYlBphS9B1SvvjdzmQAQ9MIdZyEgDN65yl7jErCN_sRke31wN8x9GKEIIxvRNC6C9SMgX15Zx_q3WmYPjLGvLv7IG4nQ2TefGQYKLrzNrABG56WHuL053-kU5Ybu4wEhgzCvunHGt5heRtx5ttKTSuaW";
+const token2 = "BQCrvy8lJRvlLT33inGZjagSJe6KFgcaLDoymniTJUeNol4_wANPBFFUackTR5CwkMEavAKCgFuS0YzvfBoofuJbPLUKeq4kWiESGiD8sMB-a8Oomgio2bkAbm8kFF12WufhOJvmVLf4dpE2lt6Z0r5Q5-ZFuIpVmv3vw0yJks4NCC_YQ-Dzri6tTVbtZ_yyXPMKkXRJttlpW6KqpQ1PDxm_HW3OvncVQcfkbBpn5IAnTJKLltMCpnlWSwsQwNznEzoW9Fz7qaqlytuI";
 const eql = std.mem.eql;
+
 const PlaylistRequest = struct {
     name: []const u8,
     description: []const u8,

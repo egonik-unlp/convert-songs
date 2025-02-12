@@ -7,7 +7,9 @@ const TrackSearch = @import("track").TrackSearchResult;
 const get_song_names = @import("file-extractor").get_song_names;
 const SongMetadata = @import("file-extractor").SongMetadata;
 const Playlist = @import("playlist").Playlist;
-
+const httpz = @import("httpz");
+// const server = @import("server/server.zig");
+const Oauth2Flow = @import("server").Oauth2Flow;
 fn make_sample_request(token: []const u8, alloc: std.mem.Allocator, album_id: []const u8) !std.ArrayList(u8) {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     var local_arena = std.heap.ArenaAllocator.init(gpa.allocator());
@@ -38,7 +40,9 @@ pub fn main() !void {
 
     std.debug.print("Request made using token : {s}\n", .{token});
     const songs_in_dir = try get_song_names("/home/gonik/Music/Nicotine/", arena.allocator());
-
+    var flow = try Oauth2Flow.build(5555, arena.allocator());
+    var thread = try flow.run();
+    defer thread.join();
     std.debug.print("Canciones son {d}\n", .{songs_in_dir.items.len});
     var song_results = std.ArrayList(TrackSearch).init(arena.allocator());
     for (songs_in_dir.items) |song| {
