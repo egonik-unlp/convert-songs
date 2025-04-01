@@ -2,7 +2,7 @@ const std = @import("std");
 const net = std.net;
 const TrackSearchResult = @import("track").TrackSearchResult;
 const SerializedToken = @import("spotify-token").SerializedToken;
-const token2 = "BQCrvy8lJRvlLT33inGZjagSJe6KFgcaLDoymniTJUeNol4_wANPBFFUackTR5CwkMEavAKCgFuS0YzvfBoofuJbPLUKeq4kWiESGiD8sMB-a8Oomgio2bkAbm8kFF12WufhOJvmVLf4dpE2lt6Z0r5Q5-ZFuIpVmv3vw0yJks4NCC_YQ-Dzri6tTVbtZ_yyXPMKkXRJttlpW6KqpQ1PDxm_HW3OvncVQcfkbBpn5IAnTJKLltMCpnlWSwsQwNznEzoW9Fz7qaqlytuI";
+const token2 = "BQD4L0Y1bmwgIDQlXiq0k9w3QVmLqhsjLcauzZ-0leXGCMjjBCINR9aoRLRvupaCOpBn_J3jY5rE3BtFp78HI4EoFB5JZ7Z35SnzA4SbfsKs_5ciZHLpHUTGkPnQCFdcFCQm0VfL5zJ8-_bdHEGLshKSZC_QXzURCBOkMnAdCmauMOz2CW1wlnhYUPYjj_Sg1Dy1t1Lse9PHwpswMEuaFvimwbUXDbe0fFMPWFJaJl7ZsikoAvGFG8c2mFN_LezwgfsPdXV1SMlsjuIU";
 const eql = std.mem.eql;
 
 const PlaylistRequest = struct {
@@ -33,21 +33,24 @@ pub const Playlist = struct {
     id: ?[]const u8,
     tracks: ?[][]u8,
     allocator: std.mem.Allocator,
-    pub fn build(allocator: std.mem.Allocator, user_name: []const u8, name: []const u8) !Playlist {
+    token: []const u8,
+    pub fn build(allocator: std.mem.Allocator, user_name: []const u8, name: []const u8, token: []const u8) !Playlist {
         var playlist = try allocator.create(Playlist);
         playlist.allocator = allocator;
         playlist.name = name;
         playlist.user_name = user_name;
         playlist.id = null;
         playlist.tracks = null;
+        playlist.token = token;
         return playlist.*;
     }
     pub fn create(self: *Playlist) !void {
         var tokener = try SerializedToken.init(self.allocator);
         const token = try tokener.retrieve();
         _ = token;
-        const bearer = try std.fmt.allocPrint(self.allocator, "Bearer {s}", .{token2});
-        const body = try PlaylistRequest.build("culo", "prueba desc", true, false).stringify(self.allocator);
+        std.debug.print("\n\n{any}\n\n", .{self});
+        const bearer = try std.fmt.allocPrint(self.allocator, "Bearer {s}", .{self.token});
+        const body = try PlaylistRequest.build("nuevo algo", "prueba desc", true, false).stringify(self.allocator);
         const url = try std.fmt.allocPrint(self.allocator, "https://api.spotify.com/v1/users/{s}/playlists", .{self.user_name});
         const uri = try std.Uri.parse(url);
         var storage = std.ArrayList(u8).init(self.allocator);
@@ -89,12 +92,17 @@ pub const Playlist = struct {
                     try queue.append(track);
                 }
             }
+            // Esto no deberia ser necesario, pero la cuenta me esta fallando por alguna razon
+            // asi anda.
+            if (queue.items.len == 0) {
+                break;
+            }
             const pre_payload = ExtendPlaylistRequest.build(queue.items);
             const payload = try std.json.stringifyAlloc(self.allocator, pre_payload, .{});
             var tokener = try SerializedToken.init(self.allocator);
             const token = try tokener.retrieve();
             _ = token;
-            const bearer = try std.fmt.allocPrint(self.allocator, "Bearer {s}", .{token2});
+            const bearer = try std.fmt.allocPrint(self.allocator, "Bearer {s}", .{self.token});
             const url = try std.fmt.allocPrint(self.allocator, "https://api.spotify.com/v1/playlists/{s}/tracks", .{self.id.?});
             const uri = try std.Uri.parse(url);
             var storage = std.ArrayList(u8).init(self.allocator);

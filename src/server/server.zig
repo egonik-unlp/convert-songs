@@ -3,51 +3,36 @@ const httpz = @import("httpz");
 const base64 = std.base64;
 const http = std.http;
 const env = @import("env.zig");
-
+const State = struct { mutex: std.Thread.Mutex, token: ?TokenResponse };
 const REDIRECT_URI = "http://localhost:8888/callback";
-
 pub const Oauth2Flow = struct {
     port: u16,
-    server: httpz.ServerCtx(void, void),
+    server: httpz.Server(*State),
     allocator: std.mem.Allocator,
+    state: *State,
     pub fn build(port: u16, allocator: std.mem.Allocator) !Oauth2Flow {
-        var server = try httpz.Server().init(
-            allocator,
-            .{ .port = port },
-        );
-        const router = server.router();
-        router.get("/", handleta);
-
-        return Oauth2Flow{ .port = port, .server = server, .allocator = allocator };
+        var state = try allocator.create(State);
+        state.token = null;
+        state.mutex = .{};
+        // state = &State{ .mutex = .{}, .token = null };
+        var server = try httpz.Server(*State).init(allocator, .{ .port = port }, state);
+        var router = try server.router(.{});
+        router.get("/", handleta, .{});
+        router.get("/login", login_handler, .{});
+        router.get("/callback", callback_handler, .{});
+        return Oauth2Flow{ .port = port, .server = server, .allocator = allocator, .state = state };
     }
     pub fn run(self: *Oauth2Flow) !std.Thread {
+        std.debug.print("\nOAuth 2 server running.\nOpen http://localhost:{d}/login to run oauth flow\n", .{self.port});
         return try self.server.listenInNewThread();
     }
 };
-fn handleta(_: *httpz.Request, res: *httpz.Response) !void {
+fn handleta(_: *State, _: *httpz.Request, res: *httpz.Response) !void {
     std.debug.print("Answering request\n", .{});
     res.status = 200;
     res.body = "ANDA ESTO";
 }
 
-const StateWrapper = struct {
-    lock: std.Thread.Mutex,
-    data: ?TokenResponse,
-    pub fn build() StateWrapper {
-        return TokenResponse{
-            .lock = std.Thread.Mutex{},
-            .data = null,
-        };
-    }
-    pub fn update(self: *StateWrapper, token: TokenResponse) !void {
-        self.lock.lock();
-        defer self.lock.unlock();
-        self.data = token;
-    }
-    pub fn isDefined(self: *StateWrapper) bool {
-        if (self.data != null) true else false;
-    }
-};
 const TokenQueryParams = struct {
     grant_type: []const u8,
     code: []const u8,
@@ -86,25 +71,18 @@ const TokenResponse = struct {
     refresh_token: []u8,
     scope: []u8,
 };
-pub fn main() !void {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    var arena = std.heap.ArenaAllocator.init(gpa.allocator());
-    defer arena.deinit();
-    server = try httpz.Server().init(arena.allocator(), .{ .port = 8888 });
-    var router = server.router();
-    router.get("/login", login_handler);
-    router.get("/callback", callback_handler);
-    try server.listen();
-    const thread = try server.listenInNewThread();
-    defer thread.join();
-}
 
-fn login_handler(_: *httpz.Request, response: *httpz.Response) !void {
+fn login_handler(
+    _: *State,
+    _: *httpz.Request,
+    response: *httpz.Response,
+) !void {
+    std.debug.print("OAuth2 flow after response flow running", .{});
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     var arena = std.heap.ArenaAllocator.init(gpa.allocator());
     defer arena.deinit();
     const qp = QueryParams.build(
-        client_id,
+        env.client_id,
         "playlist-modify-private playlist-modify-public",
         "http://localhost:8888/callback",
         "llllllllllllll",
@@ -116,13 +94,13 @@ fn login_handler(_: *httpz.Request, response: *httpz.Response) !void {
     // response.headers.add("Location", url);
     response.header("Content-Type", "text/html; charset=UTF-8");
     const headers = response.*.headers;
-    std.debug.print("{s}", .{headers.get("Location").?});
+    _ = headers;
+    // std.debug.print("{s}", .{headers.get("Location").?});
 }
-fn callback_handler(req: *httpz.Request, res: *httpz.Response) !void {
+fn callback_handler(state: *State, req: *httpz.Request, res: *httpz.Response) !void {
     const query = try req.query();
     if (query.get("code")) |code| {
-        std.debug.print("state = {s}", .{query.get("state").?});
-        try request_token(code, req.arena);
+        try request_token(code, req.arena, state);
     } else {
         const err = query.get("error").?;
         // _ = err;
@@ -130,10 +108,9 @@ fn callback_handler(req: *httpz.Request, res: *httpz.Response) !void {
     }
     res.status = 200;
     res.body = "HOLA";
-    defer server_stop();
 }
 
-fn request_token(code: []const u8, allocator: std.mem.Allocator) !void {
+fn request_token(code: []const u8, allocator: std.mem.Allocator, state: *State) !void {
     var client = http.Client{ .allocator = allocator };
     const body_ = TokenQueryParams{
         .code = code,
@@ -144,19 +121,25 @@ fn request_token(code: []const u8, allocator: std.mem.Allocator) !void {
     const encoder = base64.standard.Encoder;
     const body = try std.fmt.allocPrint(allocator, "{s}", .{body_});
     const url = try std.Uri.parse("https://accounts.spotify.com/api/token");
-    const pre64 = try std.fmt.allocPrint(allocator, "{s}:{s}", .{ client_id, client_secret });
-    // const pre64 = client_id ++ ":" ++ client_secret;
+    const pre64 = try std.fmt.allocPrint(allocator, "{s}:{s}", .{ env.client_id, env.client_secret });
     const preauth = encoder.encode(&buffer, pre64);
     const auth = try std.fmt.allocPrint(allocator, "Basic {s}", .{preauth});
     var response_storage = std.ArrayList(u8).init(allocator);
-    const options = http.Client.FetchOptions{ .location = .{ .uri = url }, .method = .POST, .headers = .{
-        .authorization = .{ .override = auth },
-        .content_type = .{ .override = "application/x-www-form-urlencoded" },
-    }, .response_storage = .{ .dynamic = &response_storage }, .payload = body };
+    const options = http.Client.FetchOptions{
+        .location = .{ .uri = url },
+        .method = .POST,
+        .headers = .{
+            .authorization = .{ .override = auth },
+            .content_type = .{ .override = "application/x-www-form-urlencoded" },
+        },
+        .response_storage = .{ .dynamic = &response_storage },
+        .payload = body,
+    };
     const result = try client.fetch(options);
-    std.debug.print("Result = {any}\nResponse = {s}\n", .{ result.status, response_storage.items });
-}
-
-pub fn server_stop() void {
-    server.stop();
+    _ = result;
+    // std.debug.print("Result = {any}\nResponse = {s}\n", .{ result.status, response_storage.items });
+    const token = try std.json.parseFromSlice(TokenResponse, allocator, response_storage.items, .{ .ignore_unknown_fields = true });
+    state.mutex.lock();
+    state.token = token.value;
+    state.mutex.unlock();
 }

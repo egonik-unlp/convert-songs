@@ -9,17 +9,23 @@ pub fn get_song_names(path: []const u8, allocator: std.mem.Allocator) !std.Array
     const dir = try std.fs.openDirAbsolute(path, .{ .access_sub_paths = true, .iterate = true });
     var walker = try dir.walk(arena.allocator());
     var songs = std.ArrayList(SongMetadata).init(allocator);
+
     while (try walker.next()) |pepe| {
+        // std.debug.print("basename {s}\n", .{pepe.basename});
         if (pepe.kind == .file) {
+            // std.debug.print("entering with song path {s} ", .{pepe.path});
             const absolute_path = try std.fs.path.join(arena.allocator(), &.{ path, pepe.path });
             const file_handle = try std.fs.openFileAbsolute(absolute_path, .{ .mode = .read_write });
             const bytes = try file_handle.readToEndAlloc(allocator, 1e10);
             const song = SongMetadata.build(bytes);
+
             if (song != null) {
+                // std.debug.print("Song {s} appended with path {s}\n ", .{ song.?.song, pepe.path });
                 try songs.append(song.?);
             }
         }
     }
+    std.debug.print("Made it through all files", .{});
     return songs;
 }
 
