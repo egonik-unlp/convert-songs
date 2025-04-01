@@ -73,7 +73,12 @@ pub fn main() !void {
             break;
         }
     }
-    var playlist = try Playlist.build(arena.allocator(), "11140152173", "pillo", flow.state.token.?.access_token);
+    var playlist = try Playlist.build(
+        arena.allocator(),
+        "11140152173",
+        "Prueba_III",
+        flow.state.token.?.access_token,
+    );
 
     try playlist.create();
     try playlist.populate(song_results.items);

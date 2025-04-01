@@ -49,7 +49,7 @@ pub const Playlist = struct {
         _ = token;
         std.debug.print("\n\n{any}\n\n", .{self});
         const bearer = try std.fmt.allocPrint(self.allocator, "Bearer {s}", .{self.token});
-        const body = try PlaylistRequest.build("nuevo algo", "prueba desc", true, false).stringify(self.allocator);
+        const body = try PlaylistRequest.build(self.name, "Created with convert-songs", true, false).stringify(self.allocator);
         const url = try std.fmt.allocPrint(self.allocator, "https://api.spotify.com/v1/users/{s}/playlists", .{self.user_name});
         const uri = try std.Uri.parse(url);
         var storage = std.ArrayList(u8).init(self.allocator);

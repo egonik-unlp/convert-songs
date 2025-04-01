@@ -14,7 +14,6 @@ pub const Oauth2Flow = struct {
         var state = try allocator.create(State);
         state.token = null;
         state.mutex = .{};
-        // state = &State{ .mutex = .{}, .token = null };
         var server = try httpz.Server(*State).init(allocator, .{ .port = port }, state);
         var router = try server.router(.{});
         router.get("/", handleta, .{});
@@ -62,6 +61,7 @@ const QueryParams = struct {
     pub fn build(cid: []const u8, scope: []const u8, redirect_uri: []const u8, state: []const u8) QueryParams {
         return QueryParams{ .client_id = cid, .scope = scope, .state = state, .redirect_uri = redirect_uri };
     }
+    fn generate_string() !void {}
 };
 
 const TokenResponse = struct {
