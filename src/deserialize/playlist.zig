@@ -2,7 +2,6 @@ const std = @import("std");
 const net = std.net;
 const TrackSearchResult = @import("track").TrackSearchResult;
 const SerializedToken = @import("spotify-token").SerializedToken;
-const token2 = "BQD4L0Y1bmwgIDQlXiq0k9w3QVmLqhsjLcauzZ-0leXGCMjjBCINR9aoRLRvupaCOpBn_J3jY5rE3BtFp78HI4EoFB5JZ7Z35SnzA4SbfsKs_5ciZHLpHUTGkPnQCFdcFCQm0VfL5zJ8-_bdHEGLshKSZC_QXzURCBOkMnAdCmauMOz2CW1wlnhYUPYjj_Sg1Dy1t1Lse9PHwpswMEuaFvimwbUXDbe0fFMPWFJaJl7ZsikoAvGFG8c2mFN_LezwgfsPdXV1SMlsjuIU";
 const eql = std.mem.eql;
 
 const PlaylistRequest = struct {

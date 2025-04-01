@@ -79,8 +79,8 @@ pub fn main() !void {
     try playlist.populate(song_results.items);
     try playlist.upload();
 
-    std.debug.print("Done with most things you can't really believe you are", .{});
-    flow.server.stop();
+    std.debug.print("Done pushing playlist", .{});
+    defer flow.server.stop();
 
     const args = try std.process.argsAlloc(arena.allocator());
     const path = if (args.len >= 2) args[1] else {
