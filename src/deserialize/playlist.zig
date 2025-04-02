@@ -27,20 +27,16 @@ const ExtendPlaylistRequest = struct {
 };
 
 pub const Playlist = struct {
-    user_name: []const u8,
     name: []const u8,
-    // id: ?[]const u8,
     id: []const u8,
-    // tracks: ?[][]u8,
     tracks: [][]u8,
     allocator: std.mem.Allocator,
     token: []const u8,
     description: []const u8,
-    pub fn build(allocator: std.mem.Allocator, user_name: []const u8, name: []const u8, token: []const u8, description: []const u8) !Playlist {
+    pub fn build(allocator: std.mem.Allocator, name: []const u8, token: []const u8, description: []const u8) !Playlist {
         var playlist = try allocator.create(Playlist);
         playlist.allocator = allocator;
         playlist.name = name;
-        playlist.user_name = user_name;
         playlist.id = undefined;
         playlist.tracks = undefined;
         playlist.token = token;
@@ -53,7 +49,8 @@ pub const Playlist = struct {
         _ = token;
         const bearer = try std.fmt.allocPrint(self.allocator, "Bearer {s}", .{self.token});
         const body = try PlaylistRequest.build(self.name, self.description, true, false).stringify(self.allocator);
-        const url = try std.fmt.allocPrint(self.allocator, "https://api.spotify.com/v1/users/{s}/playlists", .{self.user_name});
+        const user_name = try self.get_user();
+        const url = try std.fmt.allocPrint(self.allocator, "https://api.spotify.com/v1/users/{s}/playlists", .{user_name});
         const uri = try std.Uri.parse(url);
         var storage = std.ArrayList(u8).init(self.allocator);
         const options = std.http.Client.FetchOptions{
@@ -130,5 +127,24 @@ pub const Playlist = struct {
             next_chunk_len = @min(100, remainder);
         }
     }
+    pub fn get_user(self: Playlist) ![]const u8 {
+        const bearer = try std.fmt.allocPrint(self.allocator, "Bearer {s}", .{self.token});
+        const uri = try std.Uri.parse("https://api.spotify.com/v1/me");
+        var storage = std.ArrayList(u8).init(self.allocator);
+        const options = std.http.Client.FetchOptions{
+            .headers = .{
+                .authorization = .{ .override = bearer },
+            },
+            .method = .GET,
+            .location = .{ .uri = uri },
+            .response_storage = .{ .dynamic = &storage },
+        };
+        var client = std.http.Client{ .allocator = self.allocator };
+        _ = try client.fetch(options);
+        const userdata = try std.json.parseFromSlice(User, self.allocator, storage.items, .{ .ignore_unknown_fields = true });
+        std.debug.print("User {{id : {s}, display_name : {s}}}\n", .{ userdata.value.id, userdata.value.display_name });
+        return userdata.value.id;
+    }
 };
 const SoloId = struct { id: []u8 };
+const User = struct { id: []const u8, display_name: []const u8 };

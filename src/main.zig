@@ -51,7 +51,7 @@ pub fn main() !void {
         },
         3 => .{ args[1], args[2] },
         else => {
-            std.debug.print("Demasiados argumentos", .{});
+            std.debug.print("Demasiados argumentos\n", .{});
             return;
         },
     };
@@ -83,18 +83,18 @@ pub fn main() !void {
             break;
         }
     }
-    // ya nadie mas va a acceder al lock, igual lo hacemos "prolijo"
+    // ya nadie mas va a acceder al lock, igual lo hago "prolijo"
     flow.state.mutex.lock();
     defer flow.state.mutex.unlock();
     //
+
     var playlist = try Playlist.build(
         arena.allocator(),
-        "11140152173",
+
         playlist_name,
         flow.state.token.?.access_token,
         playlist_description,
     );
-
     try playlist.create();
     try playlist.populate(song_results.items);
     try playlist.upload();

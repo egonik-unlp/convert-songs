@@ -88,7 +88,7 @@ fn login_handler(
     _: *httpz.Request,
     response: *httpz.Response,
 ) !void {
-    std.debug.print("OAuth2 flow after response flow running", .{});
+    std.debug.print("OAuth2 flow after response flow running\n", .{});
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     var arena = std.heap.ArenaAllocator.init(gpa.allocator());
     defer arena.deinit();
@@ -118,7 +118,7 @@ fn callback_handler(state: *State, req: *httpz.Request, res: *httpz.Response) !v
         std.debug.print("ERRROR = {any}", .{err});
     }
     res.status = 200;
-    res.body = "HOLA";
+    res.body = "Autorizacion correcta";
 }
 
 fn request_token(code: []const u8, allocator: std.mem.Allocator, state: *State) !void {
