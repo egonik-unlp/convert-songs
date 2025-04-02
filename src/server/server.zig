@@ -70,6 +70,17 @@ const TokenResponse = struct {
     expires_in: i32,
     refresh_token: []u8,
     scope: []u8,
+    pub fn format(
+        self: @This(),
+        _: []const u8,
+        _: std.fmt.FormatOptions,
+        writer: anytype,
+    ) !void {
+        try writer.print(
+            "TokenResponse {{ access_token = {s}, token_type = {s}, expires_in = {d}, refresh_token = {s}, scope = {s}}}",
+            .{ self.access_token, self.token_type, self.expires_in, self.refresh_token, self.scope },
+        );
+    }
 };
 
 fn login_handler(
@@ -139,6 +150,7 @@ fn request_token(code: []const u8, allocator: std.mem.Allocator, state: *State) 
     _ = result;
     // std.debug.print("Result = {any}\nResponse = {s}\n", .{ result.status, response_storage.items });
     const token = try std.json.parseFromSlice(TokenResponse, allocator, response_storage.items, .{ .ignore_unknown_fields = true });
+    std.debug.print("Retrieved token = \n{any}\n", .{token.value});
     state.mutex.lock();
     state.token = token.value;
     state.mutex.unlock();

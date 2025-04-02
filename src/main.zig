@@ -39,8 +39,24 @@ pub fn main() !void {
     var flow = try Oauth2Flow.build(8888, arena.allocator());
     var thread = try flow.run();
     defer thread.join();
-
-    // try playlist.create();
+    defer flow.server.stop();
+    const args = try std.process.argsAlloc(arena.allocator());
+    const playlist_name, const playlist_description = switch (args.len) {
+        1 => {
+            std.debug.print("No se proveyeron nombre y descripcion para la playlist a crear\n", .{});
+            return;
+        },
+        2 => inner: {
+            std.debug.print("Solo se proveyo un argumento. Se asume que el nombre de la playlist es {s} y la descripcion se usara la default\n", .{args[1]});
+            break :inner .{ args[1], "Created with convert-songs" };
+        },
+        3 => .{ args[1], args[2] },
+        else => {
+            std.debug.print("Demasiados argumentos", .{});
+            return;
+        },
+    };
+    std.debug.print("pn {s}, pd {s}\n", .{ playlist_name, playlist_description });
 
     std.debug.print("Request made using token : {s}\n", .{token});
     const songs_in_dir = try get_song_names("/home/gonik/Music/Nicotine/", arena.allocator());
@@ -57,27 +73,23 @@ pub fn main() !void {
             2,
         );
         try song_results.append(result);
-        // const track = result.tracks.items[0];
-        errdefer std.debug.print("Failing query {s} {s} {s}", .{ song.song, song.album, song.artist });
-        // std.debug.print("song_result:  {s} {s} {s}\n", .{ track.name, track.artists[0].name, track.album.name });
+        errdefer std.debug.print("Failing query {s} {s} {s}\n", .{ song.song, song.album, song.artist });
     }
-    std.debug.print("finish pre check", .{});
+    std.debug.print("Se procesaron todas las canciones del directorio seleccionado\n", .{});
 
-    while (true) {
-        std.Thread.sleep(10000000);
-        std.debug.print("here\n", .{});
-        // const K = flow.state.token orelse TokenReponse{};
-        // .std.debug.print("tok {?s}", .{flow.state.token});
+    // Wait for 0.1s for OAuth2 token
+    while (true) : (std.Thread.sleep(10000000)) {
         if (flow.state.token != null) {
-            std.debug.print("in here\n", .{});
             break;
         }
     }
+
     var playlist = try Playlist.build(
         arena.allocator(),
         "11140152173",
-        "Prueba_III",
+        playlist_name,
         flow.state.token.?.access_token,
+        playlist_description,
     );
 
     try playlist.create();
@@ -85,25 +97,4 @@ pub fn main() !void {
     try playlist.upload();
 
     std.debug.print("Done pushing playlist", .{});
-    defer flow.server.stop();
-
-    const args = try std.process.argsAlloc(arena.allocator());
-    const path = if (args.len >= 2) args[1] else {
-        std.debug.print("Provide a spotify album code\n", .{});
-        return;
-    };
-    const api_response = try make_sample_request(
-        token,
-        arena.allocator(),
-        path,
-    );
-    const resp = api_response.items;
-    const laika = try deserialize(resp, arena.allocator());
-    std.debug.print("Tracks = {s}\n", .{laika.tracks.href});
-    std.debug.print("Artista = {s}\n", .{laika.artists[0].name});
-}
-
-fn deserialize(response: []const u8, alloc: std.mem.Allocator) !AlbumRequest {
-    const parsed = try std.json.parseFromSlice(AlbumRequest, alloc, response, .{ .ignore_unknown_fields = true });
-    return parsed.value;
 }

@@ -29,27 +29,30 @@ const ExtendPlaylistRequest = struct {
 pub const Playlist = struct {
     user_name: []const u8,
     name: []const u8,
-    id: ?[]const u8,
-    tracks: ?[][]u8,
+    // id: ?[]const u8,
+    id: []const u8,
+    // tracks: ?[][]u8,
+    tracks: [][]u8,
     allocator: std.mem.Allocator,
     token: []const u8,
-    pub fn build(allocator: std.mem.Allocator, user_name: []const u8, name: []const u8, token: []const u8) !Playlist {
+    description: []const u8,
+    pub fn build(allocator: std.mem.Allocator, user_name: []const u8, name: []const u8, token: []const u8, description: []const u8) !Playlist {
         var playlist = try allocator.create(Playlist);
         playlist.allocator = allocator;
         playlist.name = name;
         playlist.user_name = user_name;
-        playlist.id = null;
-        playlist.tracks = null;
+        playlist.id = undefined;
+        playlist.tracks = undefined;
         playlist.token = token;
+        playlist.description = description;
         return playlist.*;
     }
     pub fn create(self: *Playlist) !void {
         var tokener = try SerializedToken.init(self.allocator);
         const token = try tokener.retrieve();
         _ = token;
-        std.debug.print("\n\n{any}\n\n", .{self});
         const bearer = try std.fmt.allocPrint(self.allocator, "Bearer {s}", .{self.token});
-        const body = try PlaylistRequest.build(self.name, "Created with convert-songs", true, false).stringify(self.allocator);
+        const body = try PlaylistRequest.build(self.name, self.description, true, false).stringify(self.allocator);
         const url = try std.fmt.allocPrint(self.allocator, "https://api.spotify.com/v1/users/{s}/playlists", .{self.user_name});
         const uri = try std.Uri.parse(url);
         var storage = std.ArrayList(u8).init(self.allocator);
@@ -79,13 +82,13 @@ pub const Playlist = struct {
         self.tracks = list.items;
     }
     pub fn upload(self: Playlist) !void {
-        const total_tracks = self.tracks.?.len;
+        const total_tracks = self.tracks.len;
         var remainder: usize = @intCast(total_tracks);
         var next_chunk_len: usize = @min(100, remainder);
         var so_far: usize = 0;
         while (remainder > 0) {
             var queue = std.ArrayList([]const u8).init(self.allocator);
-            const chunk = self.tracks.?[so_far..@intCast(next_chunk_len)];
+            const chunk = self.tracks[so_far..@intCast(next_chunk_len)];
             for (chunk) |track| {
                 if (!eql(u8, track, " ")) {
                     try queue.append(track);
@@ -102,7 +105,7 @@ pub const Playlist = struct {
             const token = try tokener.retrieve();
             _ = token;
             const bearer = try std.fmt.allocPrint(self.allocator, "Bearer {s}", .{self.token});
-            const url = try std.fmt.allocPrint(self.allocator, "https://api.spotify.com/v1/playlists/{s}/tracks", .{self.id.?});
+            const url = try std.fmt.allocPrint(self.allocator, "https://api.spotify.com/v1/playlists/{s}/tracks", .{self.id});
             const uri = try std.Uri.parse(url);
             var storage = std.ArrayList(u8).init(self.allocator);
             const options = std.http.Client.FetchOptions{
