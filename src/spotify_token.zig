@@ -3,6 +3,7 @@ const InnerToken = struct { token: []const u8, expiration_timestamp: i64 };
 const dumpfile = "dump.a";
 const TokenTuple = std.meta.Tuple(&.{ []u8, i32 });
 const dotenv = @import("dotenv");
+const envfiles = @import("envfiles").Env;
 const http = std.http;
 
 const SpotifyResponse = struct {
@@ -102,9 +103,13 @@ fn get_token(allo: std.mem.Allocator) !TokenTuple {
 }
 
 fn get_dotenv(allocator: std.mem.Allocator) ![2][]const u8 {
-    var envs = try dotenv.getDataFrom(allocator, ".env");
-    const client_id = envs.get("client_id").?.?;
-    const client_secret = envs.get("client_secret").?.?;
+    //var envs = try dotenv.getDataFrom(allocator, ".env");
+    //const client_id = envs.get("client_id").?.?;
+    //const client_secret = envs.get("client_secret").?.?;
+
+    var envs = try envfiles.init(".env", allocator);
+    const client_id = try envs.getVal("client_id");
+    const client_secret = try envs.getVal("client_secret");
     return .{ client_id, client_secret };
 }
 test "holds token" {

@@ -32,6 +32,10 @@
             .url = "git+https://github.com/karlseguin/http.zig?ref=master#56258131ef4505543fef5484451867c13c5ff322",
             .hash = "httpz-0.0.0-PNVzrJSuBgDFvO7mtd2qDzaq8_hXIu1BqFuL1jwAV8Ac",
         },
+        .envfiles = .{
+            .url = "https://github.com/egonik-unlp/envfiles/archive/refs/tags/0.1.0.tar.gz",
+            .hash = "envfiles-0.0.0-W4C66QAsAABMIF-vCZqYRtdp0scpjeDRTfWak9pcIlFS",
+        },
     },
     .paths = .{
         "build.zig",

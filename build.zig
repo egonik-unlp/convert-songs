@@ -81,6 +81,9 @@ pub fn build(b: *std.Build) void {
     const dotenv_dep = b.dependency("dotenv", .{ .target = target });
     const dotenv_mod = dotenv_dep.module("dotenv");
     exe.root_module.addImport("dotenv", dotenv_mod);
+    const enviles_dep = b.dependency("envfiles", .{ .target = target, .optimize = optimize });
+    const envfiles_mod = enviles_dep.module("envfiles");
+    exe.root_module.addImport("envfiles", envfiles_mod);
     const album = b.addModule("album", .{ .root_source_file = .{ .cwd_relative = "src/deserialize/album.zig" } });
     exe.root_module.addImport("album", album);
     const track = b.addModule("track", .{ .root_source_file = .{ .cwd_relative = "src/deserialize/track.zig" } });
@@ -99,6 +102,7 @@ pub fn build(b: *std.Build) void {
     const spotify_token = b.addModule("spotify-token", .{ .root_source_file = .{ .cwd_relative = "src/spotify_token.zig" } });
     exe.root_module.addImport("spotify-token", spotify_token);
     spotify_token.addImport("dotenv", dotenv_mod);
+    spotify_token.addImport("envfiles", envfiles_mod);
     track.addImport("spotify-token", spotify_token);
     playlist.addImport("spotify-token", spotify_token);
     const run_step = b.step("run", "Run the app");
