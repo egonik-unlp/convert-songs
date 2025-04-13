@@ -2,8 +2,8 @@ const std = @import("std");
 const InnerToken = struct { token: []const u8, expiration_timestamp: i64 };
 const dumpfile = "dump.a";
 const TokenTuple = std.meta.Tuple(&.{ []u8, i32 });
-const dotenv = @import("dotenv");
-const envfiles = @import("envfiles").Env;
+// const dotenv = @import("dotenv");
+const envfiles = @import("envfiles");
 const http = std.http;
 
 const SpotifyResponse = struct {
@@ -36,6 +36,7 @@ pub const SerializedToken = struct {
                 std.debug.print("Token file already exists\n", .{});
                 const str = try value.readToEndAlloc(allocator, 4096);
                 const token_data = try std.json.parseFromSlice(InnerToken, allocator, str, .{ .ignore_unknown_fields = true, .parse_numbers = true });
+
                 defer value.close(); // Cierra el archivo abierto, dentro de este scope.
                 std.debug.print("Retrieved token: {s}\n", .{token_data.value.token});
                 break :blk .{ token_data.value.token, token_data.value.expiration_timestamp };
@@ -60,7 +61,7 @@ pub const SerializedToken = struct {
         const ret = SerializedToken{ .expiration_timestamp = expiration_timestamp, .token = token, .arena = allocator };
         return ret;
     }
-    fn update(self: *SerializedToken) !void {
+    pub fn update(self: *SerializedToken) !void {
         const token, const void_timestamp = try get_token(self.arena);
         const expiration_timestamp = void_timestamp + @divTrunc(std.time.milliTimestamp(), 1000);
         self.expiration_timestamp = expiration_timestamp;
@@ -74,8 +75,9 @@ pub const SerializedToken = struct {
     pub fn retrieve(self: *SerializedToken) ![]const u8 {
         const current_timestamp = @divTrunc(std.time.milliTimestamp(), 1000);
         if (current_timestamp > self.expiration_timestamp) {
-            std.debug.print("Current token is void. Updating token...", .{});
+            std.debug.print("Current token is void. Updating token...\n", .{});
             try self.update();
+            std.debug.print("Updates\n", .{});
         }
         return self.token;
     }
@@ -93,23 +95,17 @@ fn get_token(allo: std.mem.Allocator) !TokenTuple {
     var response = std.ArrayList(u8).init(local_arena.allocator());
     const options = http.Client.FetchOptions{ .response_storage = .{ .dynamic = &response }, .method = .POST, .payload = body, .server_header_buffer = &buf, .headers = headers, .location = http.Client.FetchOptions.Location{ .uri = url } };
     _ = try client.fetch(options);
-    std.debug.print("\n{s}\n", .{response.items});
     const obj = try std.json.parseFromSlice(SpotifyResponse, allo, response.items, .{ .ignore_unknown_fields = true });
     const token = obj.value.access_token;
     const expiration = obj.value.expires_in;
-    // std.debug.print("Token expires in = {}", .{obj.value.expires_in});
     const ret: TokenTuple = .{ token, expiration };
     return ret;
 }
 
 fn get_dotenv(allocator: std.mem.Allocator) ![2][]const u8 {
-    //var envs = try dotenv.getDataFrom(allocator, ".env");
-    //const client_id = envs.get("client_id").?.?;
-    //const client_secret = envs.get("client_secret").?.?;
-
-    var envs = try envfiles.init(".env", allocator);
-    const client_id = try envs.getVal("client_id");
-    const client_secret = try envs.getVal("client_secret");
+    const env = try envfiles.Env.init(".env", allocator);
+    const client_id = try env.getVal("client_id");
+    const client_secret = try env.getVal("client_secret");
     return .{ client_id, client_secret };
 }
 test "holds token" {

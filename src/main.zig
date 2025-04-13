@@ -34,7 +34,7 @@ pub fn main() !void {
     var arena = std.heap.ArenaAllocator.init(gpa.allocator());
     defer arena.deinit();
     var tokener = try SerializedToken.init(arena.allocator());
-    const token = try tokener.retrieve();
+    _ = try tokener.retrieve();
     var flow = try Oauth2Flow.build(8888, arena.allocator());
     var thread = try flow.run();
     defer thread.join();
@@ -55,13 +55,18 @@ pub fn main() !void {
             return;
         },
     };
+    const progress = std.Progress.start(.{ .root_name = "Procesando tracks" });
+    defer progress.end();
 
-    std.debug.print("Request made using token : {s}\n", .{token});
-    const songs_in_dir = try get_song_names("/home/gonik/Music/Nicotine/", arena.allocator());
+    const songs_in_dir = try get_song_names("/home/gonik/Music/Nicotine/", arena.allocator(), progress);
 
     std.debug.print("Canciones son {d}\n", .{songs_in_dir.items.len});
     var song_results = std.ArrayList(TrackSearch).init(arena.allocator());
+    var file = try std.fs.cwd().createFile("logs", .{});
+    const search_subnode = progress.start("Searching Tracks", songs_in_dir.items.len);
+    defer search_subnode.end();
     for (songs_in_dir.items) |song| {
+        search_subnode.completeOne();
         const result = try TrackSearch.make_request(
             arena.allocator(),
             &tokener,
@@ -69,6 +74,7 @@ pub fn main() !void {
             song.album,
             song.artist,
             2,
+            &file,
         );
         try song_results.append(result);
         errdefer std.debug.print("Failing query {s} {s} {s}\n", .{ song.song, song.album, song.artist });
@@ -96,8 +102,8 @@ pub fn main() !void {
         playlist_description,
     );
     try playlist.create();
-    try playlist.populate(song_results.items);
+    try playlist.populate(song_results.items, progress);
     try playlist.upload();
 
-    std.debug.print("Done pushing playlist", .{});
+    std.debug.print("Done pushing playlist\n", .{});
 }

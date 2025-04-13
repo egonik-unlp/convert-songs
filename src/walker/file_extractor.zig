@@ -2,7 +2,7 @@ const std = @import("std");
 const eql = std.mem.eql;
 const c = @import("constants.zig");
 
-pub fn get_song_names(path: []const u8, allocator: std.mem.Allocator) !std.ArrayList(SongMetadata) {
+pub fn get_song_names(path: []const u8, allocator: std.mem.Allocator, progress: std.Progress.Node) !std.ArrayList(SongMetadata) {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     var arena = std.heap.ArenaAllocator.init(gpa.allocator());
     defer arena.deinit();
@@ -11,8 +11,11 @@ pub fn get_song_names(path: []const u8, allocator: std.mem.Allocator) !std.Array
     var songs = std.ArrayList(SongMetadata).init(allocator);
 
     while (try walker.next()) |pepe| {
+        const subnode = progress.start("caminando directorio", 200);
+        defer subnode.end();
         // std.debug.print("basename {s}\n", .{pepe.basename});
         if (pepe.kind == .file) {
+            subnode.completeOne();
             // std.debug.print("entering with song path {s} ", .{pepe.path});
             const absolute_path = try std.fs.path.join(arena.allocator(), &.{ path, pepe.path });
             const file_handle = try std.fs.openFileAbsolute(absolute_path, .{ .mode = .read_write });

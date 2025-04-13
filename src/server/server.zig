@@ -29,7 +29,7 @@ pub const Oauth2Flow = struct {
 fn handleta(_: *State, _: *httpz.Request, res: *httpz.Response) !void {
     std.debug.print("Answering request\n", .{});
     res.status = 200;
-    res.body = "ANDA ESTO";
+    res.body = "Para completar el flujo de autenticacion Oauth2 ir a url http://localhost:8888/login";
 }
 
 const TokenQueryParams = struct {

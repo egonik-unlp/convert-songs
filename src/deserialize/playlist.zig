@@ -64,17 +64,21 @@ pub const Playlist = struct {
         };
         var client = std.http.Client{ .allocator = self.allocator };
         const response = try client.fetch(options);
-        std.debug.print("response code = {any}\nbody={s}", .{ response.status, storage.items });
+        _ = response;
         const contid = try std.json.parseFromSlice(SoloId, self.allocator, storage.items, .{ .ignore_unknown_fields = true });
 
         self.id = contid.value.id;
-        std.debug.print("{s}", .{storage.items});
     }
-    pub fn populate(self: *Playlist, tracks: []TrackSearchResult) !void {
+    pub fn populate(self: *Playlist, tracks: []TrackSearchResult, progress: std.Progress.Node) !void {
         var list = std.ArrayList([]u8).init(self.allocator);
+        const loadtracks = progress.start("Loading tracks", tracks.len);
+        defer loadtracks.end();
         for (tracks) |trackinfo| {
-            const single_track = trackinfo.tracks.items[0];
-            try list.append(single_track.uri);
+            loadtracks.completeOne();
+            if (trackinfo.tracks.items.len > 1) {
+                const single_track = trackinfo.tracks.items[0];
+                try list.append(single_track.uri);
+            }
         }
         self.tracks = list.items;
     }
@@ -116,12 +120,11 @@ pub const Playlist = struct {
             };
             const file = try std.fs.cwd().createFile("dump_songs.txt", .{});
             try file.writeAll(payload);
-            std.debug.print("\nPL=\n{s}\n", .{payload});
             var client = std.http.Client{ .allocator = self.allocator };
             const response = try client.fetch(options);
             std.debug.print("{}", .{response.status});
             std.debug.print("{s}", .{storage.items});
-            std.debug.print("\n\n\n {}{}{}\n\n\n", .{ so_far, next_chunk_len, remainder });
+            std.debug.print("\n\n\n {}-{}-{}\n\n\n", .{ so_far, next_chunk_len, remainder });
             so_far += next_chunk_len;
             remainder -= next_chunk_len;
             next_chunk_len = @min(100, remainder);

@@ -78,11 +78,9 @@ pub fn build(b: *std.Build) void {
     if (b.args) |args| {
         run_cmd.addArgs(args);
     }
-    const dotenv_dep = b.dependency("dotenv", .{ .target = target });
-    const dotenv_mod = dotenv_dep.module("dotenv");
-    exe.root_module.addImport("dotenv", dotenv_mod);
-    const enviles_dep = b.dependency("envfiles", .{ .target = target, .optimize = optimize });
-    const envfiles_mod = enviles_dep.module("envfiles");
+
+    const envfiles_dep = b.dependency("envfiles", .{ .target = target, .optimize = optimize });
+    const envfiles_mod = envfiles_dep.module("envfiles");
     exe.root_module.addImport("envfiles", envfiles_mod);
     const album = b.addModule("album", .{ .root_source_file = .{ .cwd_relative = "src/deserialize/album.zig" } });
     exe.root_module.addImport("album", album);
@@ -101,7 +99,6 @@ pub fn build(b: *std.Build) void {
     // This will evaluate the `run` step rather than the default, which is "install".
     const spotify_token = b.addModule("spotify-token", .{ .root_source_file = .{ .cwd_relative = "src/spotify_token.zig" } });
     exe.root_module.addImport("spotify-token", spotify_token);
-    spotify_token.addImport("dotenv", dotenv_mod);
     spotify_token.addImport("envfiles", envfiles_mod);
     track.addImport("spotify-token", spotify_token);
     playlist.addImport("spotify-token", spotify_token);
@@ -117,7 +114,7 @@ pub fn build(b: *std.Build) void {
     const exe_unit_tests = b.addTest(.{
         .root_module = exe_mod,
     });
-    exe_unit_tests.root_module.addImport("dotenv", dotenv_mod);
+    // exe_unit_tests.root_module.addImport("dotenv", dotenv_mod);
     const run_exe_unit_tests = b.addRunArtifact(exe_unit_tests);
     // Similar to creating the run step earlier, this exposes a `test` step to
     // the `zig build --help` menu, providing a way for the user to request

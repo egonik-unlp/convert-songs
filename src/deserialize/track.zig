@@ -6,7 +6,7 @@ pub const TrackSearchResult = struct {
     tracks: struct {
         href: []u8,
         limit: i32,
-        next: []u8,
+        next: ?[]u8,
         offset: i32,
         total: i32,
         items: []struct {
@@ -72,7 +72,7 @@ pub const TrackSearchResult = struct {
             is_local: bool,
         },
     },
-    pub fn make_request(allocator: std.mem.Allocator, tokener: *SerializedToken, track_name: []const u8, album_name: ?[]const u8, artist_name: ?[]const u8, result_count: u8) !TrackSearchResult {
+    pub fn make_request(allocator: std.mem.Allocator, tokener: *SerializedToken, track_name: []const u8, album_name: ?[]const u8, artist_name: ?[]const u8, result_count: u8, logfile: *std.fs.File) !TrackSearchResult {
         var gpa = std.heap.GeneralPurposeAllocator(.{}){};
         var local_arena = std.heap.ArenaAllocator.init(gpa.allocator());
         defer local_arena.deinit();
@@ -84,13 +84,29 @@ pub const TrackSearchResult = struct {
             result_count,
         );
         const query_url = try query_url_factory.build();
+        try logfile.writeAll("For song ");
+        try logfile.writeAll(track_name);
+        try logfile.writeAll("\n");
+        try logfile.writeAll(query_url);
+        try logfile.writeAll("\n");
         var client = std.http.Client{ .allocator = local_arena.allocator() };
         // var local_buffer = std.ArrayList(u8).init(local_arena.allocator());
         const token = try tokener.retrieve();
         const bearer = try std.fmt.allocPrint(local_arena.allocator(), "Bearer {s}", .{token});
         var buffer: [4096]u8 = undefined;
         var local_buffer = std.ArrayList(u8).init(allocator);
+        try logfile.writeAll("\n");
+        try logfile.writeAll("Query Url pre encoding");
+        try logfile.writeAll("\n");
+        try logfile.writeAll(query_url);
+        try logfile.writeAll("\n");
         const destination = try std.Uri.parse(query_url);
+        try logfile.writeAll("\n");
+        try logfile.writeAll("Percent Encoded: ");
+        try logfile.writeAll("\n");
+        try logfile.writeAll(destination.query.?.percent_encoded);
+        try logfile.writeAll("\n");
+
         const request = try client.fetch(.{
             .server_header_buffer = &buffer,
             .headers = .{ .authorization = .{ .override = bearer } },
@@ -98,7 +114,19 @@ pub const TrackSearchResult = struct {
             .response_storage = .{ .dynamic = &local_buffer },
             .method = .GET,
         });
-        _ = request;
+        _ = switch (request.status) {
+            std.http.Status.ok => .{},
+            std.http.Status.unauthorized => try tokener.update(),
+            else => |resp| std.debug.print("No se que paso, status de request es {any}\n", .{resp}),
+        };
+        // switch (request.status) {
+        //     200 =
+        // }
+        try logfile.writeAll("\n");
+        try logfile.writeAll(local_buffer.items);
+        try logfile.writeAll("\n");
+        try logfile.writeAll("---------------------------------------------------------------");
+        try logfile.writeAll("\n");
         const response = try std.json.parseFromSlice(TrackSearchResult, allocator, local_buffer.items, .{ .ignore_unknown_fields = true });
         errdefer {
             std.debug.print("Failed with {s}\n", .{response.value});
@@ -124,14 +152,14 @@ const SearchQuery = struct {
         return query.*;
     }
     fn build(self: SearchQuery) ![]const u8 {
-        const base_pattern = "%2520{s}%3A{s}";
+        const base_pattern = "%20{s}:{s}";
         const base_url = "https://api.spotify.com/v1/search?q={s}{s}{s}{s}{s}";
-        const track_name = try std.fmt.allocPrint(self.allocator, "{s}%2520{s}%3A{s}", .{ self.track_name, "track", self.track_name });
+        const track_name = try std.fmt.allocPrint(self.allocator, "{s}%20{s}:{s}", .{ self.track_name, "track", self.track_name });
         const album_name = if (!eql(u8, self.album_name, "")) try std.fmt.allocPrint(self.allocator, base_pattern, .{ "album", self.album_name }) else "";
         const artist_name = if (!eql(u8, self.artist_name, "")) try std.fmt.allocPrint(self.allocator, base_pattern, .{ "artist", self.artist_name }) else "";
         const limit = try std.fmt.allocPrint(self.allocator, "&limit={d}", .{self.result_count});
         const query = try std.fmt.allocPrint(self.allocator, base_url, .{ track_name, artist_name, album_name, limit, "&type=track" });
-        const replaced_query = try std.mem.replaceOwned(u8, self.allocator, query, " ", "%2520");
+        const replaced_query = try std.mem.replaceOwned(u8, self.allocator, query, " ", "%20");
         return replaced_query;
     }
 };
