@@ -9,6 +9,8 @@ const Playlist = @import("playlist").Playlist;
 const TokenReponse = @import("playlist").TokenResponse;
 const httpz = @import("httpz");
 const Oauth2Flow = @import("server").Oauth2Flow;
+const clap = @import("clap");
+const ParseError = error{ ParseNameError, NoPathError };
 
 fn make_sample_request(token: []const u8, alloc: std.mem.Allocator, album_id: []const u8) !std.ArrayList(u8) {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
@@ -33,32 +35,65 @@ pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     var arena = std.heap.ArenaAllocator.init(gpa.allocator());
     defer arena.deinit();
+
+    const params = comptime clap.parseParamsComptime(
+        \\-h, --help             Display this help and exit.
+        \\-d, --desc <str>       Playlist description.
+        \\-n, --name <str>       Playlist name.
+        \\-n, --path <str>       Folder path.
+        \\
+    );
+    var diag = clap.Diagnostic{};
+    var res = clap.parse(clap.Help, &params, clap.parsers.default, .{
+        .diagnostic = &diag,
+        .allocator = arena.allocator(),
+    }) catch |err| {
+        // Report useful error and exit.
+        diag.report(std.io.getStdErr().writer(), err) catch {};
+        return err;
+    };
+    defer res.deinit();
+    if (res.args.help != 0)
+        return clap.help(std.io.getStdErr().writer(), clap.Help, &params, .{});
+    const path = pn: {
+        if (res.args.path) |path| {
+            break :pn path;
+        } else {
+            std.debug.print("No se proveyo ningun path para explorar.\n", .{});
+            try clap.help(std.io.getStdErr().writer(), clap.Help, &params, .{});
+            return ParseError.NoPathError;
+        }
+    };
+
+    const playlist_name = pn: {
+        if (res.args.name) |name| {
+            break :pn name;
+        } else {
+            std.debug.print("No se proveyo ningun nombre para la playlist.\n", .{});
+            try clap.help(std.io.getStdErr().writer(), clap.Help, &params, .{});
+            return ParseError.ParseNameError;
+        }
+    };
+
+    const playlist_description = pd: {
+        if (res.args.desc) |desc| {
+            break :pd desc;
+        } else {
+            break :pd "Creado con convert-songs";
+        }
+    };
+
     var tokener = try SerializedToken.init(arena.allocator());
     _ = try tokener.retrieve();
     var flow = try Oauth2Flow.build(8888, arena.allocator());
     var thread = try flow.run();
     defer thread.join();
     defer flow.server.stop();
-    const args = try std.process.argsAlloc(arena.allocator());
-    const playlist_name, const playlist_description = switch (args.len) {
-        1 => {
-            std.debug.print("No se proveyeron nombre y descripcion para la playlist a crear\n", .{});
-            return;
-        },
-        2 => inner: {
-            std.debug.print("Solo se proveyo un argumento. Se asume que el nombre de la playlist es {s} y la descripcion se usara la default\n", .{args[1]});
-            break :inner .{ args[1], "Created with convert-songs" };
-        },
-        3 => .{ args[1], args[2] },
-        else => {
-            std.debug.print("Demasiados argumentos\n", .{});
-            return;
-        },
-    };
+
     const progress = std.Progress.start(.{ .root_name = "Procesando tracks" });
     defer progress.end();
 
-    const songs_in_dir = try get_song_names("/home/gonik/Music/Nicotine/", arena.allocator(), progress);
+    const songs_in_dir = try get_song_names(path, arena.allocator(), progress);
 
     std.debug.print("Canciones son {d}\n", .{songs_in_dir.items.len});
     var song_results = std.ArrayList(TrackSearch).init(arena.allocator());

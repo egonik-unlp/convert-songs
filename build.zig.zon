@@ -32,6 +32,10 @@
             .url = "https://github.com/egonik-unlp/envfiles/archive/refs/tags/0.1.4.tar.gz",
             .hash = "envfiles-0.0.0-W4C66VAtAABYpugojDmcg3L__IHX6y-Ak7SNnMkWCyo4",
         },
+        .clap = .{
+            .url = "https://github.com/Hejsil/zig-clap/archive/refs/tags/0.10.0.tar.gz",
+            .hash = "clap-0.10.0-oBajB434AQBDh-Ei3YtoKIRxZacVPF1iSwp3IX_ZB8f0",
+        },
     },
     .paths = .{
         "build.zig",

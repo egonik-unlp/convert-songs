@@ -78,7 +78,8 @@ pub fn build(b: *std.Build) void {
     if (b.args) |args| {
         run_cmd.addArgs(args);
     }
-
+    const clap = b.dependency("clap", .{});
+    exe.root_module.addImport("clap", clap.module("clap"));
     const envfiles_dep = b.dependency("envfiles", .{ .target = target, .optimize = optimize });
     const envfiles_mod = envfiles_dep.module("envfiles");
     exe.root_module.addImport("envfiles", envfiles_mod);
