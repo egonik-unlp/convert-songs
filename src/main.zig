@@ -40,7 +40,7 @@ pub fn main() !void {
         \\-h, --help             Display this help and exit.
         \\-d, --desc <str>       Playlist description.
         \\-n, --name <str>       Playlist name.
-        \\-n, --path <str>       Folder path.
+        \\-p, --path <str>       Folder path.
         \\
     );
     var diag = clap.Diagnostic{};

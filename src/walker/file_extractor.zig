@@ -6,10 +6,9 @@ pub fn get_song_names(path: []const u8, allocator: std.mem.Allocator, progress: 
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     var arena = std.heap.ArenaAllocator.init(gpa.allocator());
     defer arena.deinit();
-    const dir = try std.fs.openDirAbsolute(path, .{ .access_sub_paths = true, .iterate = true });
+    var dir = try std.fs.cwd().openDir(path, .{ .access_sub_paths = true, .iterate = true });
     var walker = try dir.walk(arena.allocator());
     var songs = std.ArrayList(SongMetadata).init(allocator);
-
     while (try walker.next()) |pepe| {
         const subnode = progress.start("caminando directorio", 200);
         defer subnode.end();
@@ -17,8 +16,10 @@ pub fn get_song_names(path: []const u8, allocator: std.mem.Allocator, progress: 
         if (pepe.kind == .file) {
             subnode.completeOne();
             // std.debug.print("entering with song path {s} ", .{pepe.path});
-            const absolute_path = try std.fs.path.join(arena.allocator(), &.{ path, pepe.path });
-            const file_handle = try std.fs.openFileAbsolute(absolute_path, .{ .mode = .read_write });
+            // const file = try std.fs.path.join(arena.allocator(), &.{ path, pepe.path });
+            // const file_handle = try std.fs.openFileAbsolute(absolute_path, .{ .mode = .read_write });
+            const file_handle = try dir.openFile(pepe.path, .{ .mode = .read_write });
+            defer file_handle.close();
             const bytes = try file_handle.readToEndAlloc(allocator, 1e10);
             const song = SongMetadata.build(bytes);
 
