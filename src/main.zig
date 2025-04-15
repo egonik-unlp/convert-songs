@@ -93,16 +93,18 @@ pub fn main() !void {
     const progress = std.Progress.start(.{ .root_name = "Procesando tracks" });
     defer progress.end();
 
-    const songs_in_dir = try get_song_names(path, arena.allocator(), progress);
+    const songs_in_dir = try get_song_names(path, gpa.allocator(), progress);
     if (songs_in_dir.items.len == 0) {
         std.debug.print("No tracks detected", .{});
         return;
     }
     std.debug.print("Canciones son {d}\n", .{songs_in_dir.items.len});
-    var song_results = std.ArrayList(TrackSearch).init(arena.allocator());
+    var song_results = std.ArrayList(TrackSearch).init(gpa.allocator());
+    defer song_results.deinit();
     var file = try std.fs.cwd().createFile("logs", .{});
     const search_subnode = progress.start("Searching Tracks", songs_in_dir.items.len);
     defer search_subnode.end();
+    defer songs_in_dir.deinit();
     for (songs_in_dir.items) |song| {
         search_subnode.completeOne();
         const result = try TrackSearch.make_request(
