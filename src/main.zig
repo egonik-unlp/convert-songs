@@ -94,7 +94,10 @@ pub fn main() !void {
     defer progress.end();
 
     const songs_in_dir = try get_song_names(path, arena.allocator(), progress);
-
+    if (songs_in_dir.items.len == 0) {
+        std.debug.print("No tracks detected", .{});
+        return;
+    }
     std.debug.print("Canciones son {d}\n", .{songs_in_dir.items.len});
     var song_results = std.ArrayList(TrackSearch).init(arena.allocator());
     var file = try std.fs.cwd().createFile("logs", .{});

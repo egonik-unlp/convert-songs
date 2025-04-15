@@ -89,7 +89,7 @@ pub fn build(b: *std.Build) void {
     exe.root_module.addImport("track", track);
     const file_extractor = b.addModule("file-extractor", .{ .root_source_file = .{ .cwd_relative = "src/walker/file_extractor.zig" } });
     exe.root_module.addImport("file-extractor", file_extractor);
-    const playlist = b.addModule("playlisy", .{ .root_source_file = .{ .cwd_relative = "src/deserialize/playlist.zig" } });
+    const playlist = b.addModule("playlist", .{ .root_source_file = .{ .cwd_relative = "src/deserialize/playlist.zig" } });
     exe.root_module.addImport("playlist", playlist);
     playlist.addImport("track", track);
     const server = b.addModule("server", .{ .root_source_file = .{ .cwd_relative = "src/server/server.zig" } });
