@@ -1,7 +1,6 @@
 const std = @import("std");
 const eql = std.mem.eql;
 const c = @import("constants.zig");
-
 pub fn get_song_names(path: []const u8, allocator: std.mem.Allocator, progress: std.Progress.Node) !std.ArrayList(SongMetadata) {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     var arena = std.heap.ArenaAllocator.init(gpa.allocator());
@@ -15,9 +14,12 @@ pub fn get_song_names(path: []const u8, allocator: std.mem.Allocator, progress: 
         // std.debug.print("basename {s}\n", .{pepe.basename});
         if (pepe.kind == .file) {
             subnode.completeOne();
-            // std.debug.print("entering with song path {s} ", .{pepe.path});
-            // const file = try std.fs.path.join(arena.allocator(), &.{ path, pepe.path });
-            // const file_handle = try std.fs.openFileAbsolute(absolute_path, .{ .mode = .read_write });
+            var ext_iter = std.mem.splitScalar(u8, pepe.path, '.');
+            _ = ext_iter.next().?;
+            if (ext_iter.next() == null) {
+                continue;
+            }
+
             const file_handle = try dir.openFile(pepe.path, .{ .mode = .read_write });
             defer file_handle.close();
             const bytes = try file_handle.readToEndAlloc(allocator, 1e10);

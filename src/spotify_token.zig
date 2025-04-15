@@ -5,7 +5,7 @@ const TokenTuple = std.meta.Tuple(&.{ []u8, i32 });
 // const dotenv = @import("dotenv");
 const envfiles = @import("envfiles");
 const http = std.http;
-
+const env_embedded = @embedFile(".env");
 const SpotifyResponse = struct {
     access_token: []u8,
     token_type: []u8,
@@ -103,7 +103,8 @@ fn get_token(allo: std.mem.Allocator) !TokenTuple {
 }
 
 fn get_dotenv(allocator: std.mem.Allocator) ![2][]const u8 {
-    const env = try envfiles.Env.init(".env", allocator);
+    // const env = try envfiles.Env.init(".env", allocator);
+    const env = try envfiles.Env.init_string(env_embedded, allocator);
     const client_id = try env.getVal("client_id");
     const client_secret = try env.getVal("client_secret");
     return .{ client_id, client_secret };
