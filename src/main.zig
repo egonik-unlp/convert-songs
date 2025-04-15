@@ -99,8 +99,8 @@ pub fn main() !void {
         return;
     }
     std.debug.print("Canciones son {d}\n", .{songs_in_dir.items.len});
-    var song_results = std.ArrayList(TrackSearch).init(gpa.allocator());
-    defer song_results.deinit();
+    var song_results = std.ArrayList(TrackSearch).init(arena.allocator());
+
     var file = try std.fs.cwd().createFile("logs", .{});
     const search_subnode = progress.start("Searching Tracks", songs_in_dir.items.len);
     defer search_subnode.end();

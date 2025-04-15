@@ -22,7 +22,7 @@ pub fn get_song_names(path: []const u8, allocator: std.mem.Allocator, progress: 
             defer file_handle.close();
             const bytes = try file_handle.readToEndAlloc(allocator, 1e10);
             defer allocator.free(bytes);
-            const song = SongMetadata.build(bytes);
+            const song = try SongMetadata.build(bytes, allocator);
 
             if (song != null) {
                 // std.debug.print("Song {s} appended with path {s}\n ", .{ song.?.song, pepe.path });
@@ -51,16 +51,16 @@ pub const SongMetadata = struct {
     year: []const u8,
     comment: []const u8,
     genre: []const u8,
-    pub fn build(buffer: []u8) ?SongMetadata {
+    pub fn build(buffer: []u8, allocator: std.mem.Allocator) !?SongMetadata {
         var metadata = buffer[buffer.len - c.TAG_BEGIN .. buffer.len];
         var song: SongMetadata = undefined;
         if (eql(u8, metadata[c.TAG_L..c.TAG_R], "TAG")) {
-            song.song = nullbytedetect(metadata[c.SONG_L..c.SONG_R]);
-            song.artist = nullbytedetect(metadata[c.ARTIST_L..c.ARTIST_R]);
-            song.album = nullbytedetect(metadata[c.ALBUM_L..c.ALBUM_R]);
-            song.year = nullbytedetect(metadata[c.YEAR_L..c.YEAR_R]);
-            song.comment = nullbytedetect(metadata[c.COMMENT_L..c.COMMENT_R]);
-            song.genre = nullbytedetect(metadata[c.GENRE_L..c.GENRE_R]);
+            song.song = try allocator.dupe(u8, nullbytedetect(metadata[c.SONG_L..c.SONG_R]));
+            song.artist = try allocator.dupe(u8, nullbytedetect(metadata[c.ARTIST_L..c.ARTIST_R]));
+            song.album = try allocator.dupe(u8, nullbytedetect(metadata[c.ALBUM_L..c.ALBUM_R]));
+            song.year = try allocator.dupe(u8, nullbytedetect(metadata[c.YEAR_L..c.YEAR_R]));
+            song.comment = try allocator.dupe(u8, nullbytedetect(metadata[c.COMMENT_L..c.COMMENT_R]));
+            song.genre = try allocator.dupe(u8, nullbytedetect(metadata[c.GENRE_L..c.GENRE_R]));
             return song;
         } else {
             return null;
