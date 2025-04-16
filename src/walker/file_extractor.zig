@@ -25,7 +25,6 @@ pub fn get_song_names(path: []const u8, allocator: std.mem.Allocator, progress: 
             const song = try SongMetadata.build(bytes, allocator);
 
             if (song != null) {
-                // std.debug.print("Song {s} appended with path {s}\n ", .{ song.?.song, pepe.path });
                 try songs.append(song.?);
             }
         }

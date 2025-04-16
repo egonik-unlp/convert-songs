@@ -12,25 +12,6 @@ const Oauth2Flow = @import("server").Oauth2Flow;
 const clap = @import("clap");
 const ParseError = error{ ParseNameError, NoPathError };
 
-fn make_sample_request(token: []const u8, alloc: std.mem.Allocator, album_id: []const u8) !std.ArrayList(u8) {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    var local_arena = std.heap.ArenaAllocator.init(gpa.allocator());
-    defer local_arena.deinit();
-    const url = try std.fmt.allocPrint(local_arena.allocator(), "https://api.spotify.com/v1/albums/{s}", .{album_id});
-    var client = http.Client{ .allocator = local_arena.allocator() };
-    var buffer = std.ArrayList(u8).init(alloc);
-    const bearer = try std.fmt.allocPrint(local_arena.allocator(), "Bearer {s}", .{token});
-    const respcode = try client.fetch(http.Client.FetchOptions{
-        .headers = .{ .authorization = .{ .override = bearer } },
-        .location = .{ .uri = try std.Uri.parse(url) },
-        .method = .GET,
-        .response_storage = .{ .dynamic = &buffer },
-    });
-    std.debug.print("Request Status: {}\n", .{respcode.status});
-
-    return buffer;
-}
-
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     var arena = std.heap.ArenaAllocator.init(gpa.allocator());
