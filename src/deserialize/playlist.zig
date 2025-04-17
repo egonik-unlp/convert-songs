@@ -75,7 +75,7 @@ pub const Playlist = struct {
         defer loadtracks.end();
         for (tracks) |trackinfo| {
             loadtracks.completeOne();
-            if (trackinfo.tracks.items.len > 1) {
+            if (trackinfo.tracks.items.len >= 1) {
                 const single_track = trackinfo.tracks.items[0];
                 try list.append(single_track.uri);
             }
@@ -89,17 +89,13 @@ pub const Playlist = struct {
         var so_far: usize = 0;
         while (remainder > 0) {
             var queue = std.ArrayList([]const u8).init(self.allocator);
-            const chunk = self.tracks[so_far..@intCast(next_chunk_len)];
+            const chunk = self.tracks[so_far..@intCast(so_far + next_chunk_len)];
             for (chunk) |track| {
                 if (!eql(u8, track, " ")) {
                     try queue.append(track);
                 }
             }
-            // Esto no deberia ser necesario, pero la cuenta me esta fallando por alguna razon
-            // asi anda.
-            if (queue.items.len == 0) {
-                break;
-            }
+
             const pre_payload = ExtendPlaylistRequest.build(queue.items);
             const payload = try std.json.stringifyAlloc(self.allocator, pre_payload, .{});
             var tokener = try SerializedToken.init(self.allocator);
@@ -124,10 +120,11 @@ pub const Playlist = struct {
             const response = try client.fetch(options);
             std.debug.print("{}", .{response.status});
             std.debug.print("{s}", .{storage.items});
-            std.debug.print("\n\n\n {}-{}-{}\n\n\n", .{ so_far, next_chunk_len, remainder });
-            so_far += next_chunk_len;
-            remainder -= next_chunk_len;
-            next_chunk_len = @min(100, remainder);
+            std.debug.print("\nBefore:\n\n {}-{}-{}\n\n\n", .{ so_far, next_chunk_len, remainder });
+            so_far += next_chunk_len; // so_far = 100
+            remainder -= next_chunk_len; // remainder = 53
+            next_chunk_len = @min(100, remainder); // next_chunk_len = 53
+            std.debug.print("\nAfter:\n\n {}-{}-{}\n\n\n", .{ so_far, next_chunk_len, remainder });
         }
     }
     pub fn get_user(self: Playlist) ![]const u8 {

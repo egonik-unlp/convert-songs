@@ -86,6 +86,8 @@ pub fn main() !void {
     const search_subnode = progress.start("Searching Tracks", songs_in_dir.items.len);
     defer search_subnode.end();
     defer songs_in_dir.deinit();
+    var pool: std.Thread.Pool = undefined;
+    try pool.init(.{ .allocator = arena.allocator(), .n_jobs = 8 });
     for (songs_in_dir.items) |song| {
         search_subnode.completeOne();
         const result = try TrackSearch.make_request(
@@ -97,9 +99,11 @@ pub fn main() !void {
             2,
             &file,
         );
+
         try song_results.append(result);
-        errdefer std.debug.print("Failing query {s} {s} {s}\n", .{ song.song, song.album, song.artist });
     }
+
+    defer pool.deinit();
     std.debug.print("Se procesaron todas las canciones del directorio seleccionado\n", .{});
 
     // Wait for 0.5s for OAuth2 token
@@ -127,4 +131,25 @@ pub fn main() !void {
     try playlist.upload();
 
     std.debug.print("Done pushing playlist\n", .{});
+}
+fn search_track(
+    progress: std.Progress.Node,
+    results: *std.ArrayListAligned(TrackSearch, null),
+    song: SongMetadata,
+    file: *std.fs.File,
+    allocator: std.mem.Allocator,
+    tokener: *SerializedToken,
+) !void {
+    progress.completeOne();
+    const result = try TrackSearch.make_request(
+        allocator,
+        tokener,
+        song.song,
+        song.album,
+        song.artist,
+        2,
+        file,
+    );
+
+    results.append(result);
 }
