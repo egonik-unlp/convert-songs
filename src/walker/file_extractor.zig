@@ -50,9 +50,11 @@ pub const SongMetadata = struct {
     year: []const u8,
     comment: []const u8,
     genre: []const u8,
+    allocator: std.mem.Allocator,
     pub fn build(buffer: []u8, allocator: std.mem.Allocator) !?SongMetadata {
         var metadata = buffer[buffer.len - c.TAG_BEGIN .. buffer.len];
         var song: SongMetadata = undefined;
+        song.allocator = allocator;
         if (eql(u8, metadata[c.TAG_L..c.TAG_R], "TAG")) {
             song.song = try allocator.dupe(u8, nullbytedetect(metadata[c.SONG_L..c.SONG_R]));
             song.artist = try allocator.dupe(u8, nullbytedetect(metadata[c.ARTIST_L..c.ARTIST_R]));
@@ -64,6 +66,14 @@ pub const SongMetadata = struct {
         } else {
             return null;
         }
+    }
+    pub fn deinit(self: SongMetadata) void {
+        self.allocator.free(self.album);
+        self.allocator.free(self.song);
+        self.allocator.free(self.year);
+        self.allocator.free(self.genre);
+        self.allocator.free(self.comment);
+        self.allocator.free(self.artist);
     }
     pub fn format(
         self: @This(),
