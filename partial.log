@@ -1,0 +1,1011 @@
+   ^
+
+error(gpa): Double free detected. Allocation: 
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/mem/Allocator.zig:411:40: 0x12095b7 in dupe__anon_8640 (convert-songs)
+    const new_buf = try allocator.alloc(T, m.len);
+                                       ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:59:43: 0x12998b8 in build (convert-songs)
+            song.song = try allocator.dupe(u8, nullbytedetect(metadata[c.SONG_L..c.SONG_R]));
+                                          ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:25:48: 0x129a6ab in get_song_names (convert-songs)
+            const song = try SongMetadata.build(bytes, allocator);
+                                               ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:81:42: 0x12a04dd in main (convert-songs)
+    var songs_in_dir = try get_song_names(path, gpa.allocator(), progress);
+                                         ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+ First free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:72:28: 0x12a2922 in deinit (convert-songs)
+        self.allocator.free(self.song);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:154:22: 0x12c052f in search_track_threaded (convert-songs)
+    defer song.deinit();
+                     ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:233:39: 0x129bd14 in runFn (convert-songs)
+            @call(.auto, func, closure.arguments);
+                                      ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:295:32: 0x13bfba4 in worker (convert-songs)
+            run_node.data.runFn(&run_node.data, id);
+                               ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:488:13: 0x12d164d in callFn__anon_38386 (convert-songs)
+            @call(.auto, f, args);
+            ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:1378:30: 0x12bfff1 in entryFn (convert-songs)
+                return callFn(f, self.fn_args);
+                             ^
+ Second free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:72:28: 0x12a2922 in deinit (convert-songs)
+        self.allocator.free(self.song);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:107:20: 0x12a0f34 in main (convert-songs)
+        song.deinit();
+                   ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+
+error(gpa): Double free detected. Allocation: 
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/mem/Allocator.zig:411:40: 0x12095b7 in dupe__anon_8640 (convert-songs)
+    const new_buf = try allocator.alloc(T, m.len);
+                                       ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:62:43: 0x1299c1e in build (convert-songs)
+            song.year = try allocator.dupe(u8, nullbytedetect(metadata[c.YEAR_L..c.YEAR_R]));
+                                          ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:25:48: 0x129a6ab in get_song_names (convert-songs)
+            const song = try SongMetadata.build(bytes, allocator);
+                                               ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:81:42: 0x12a04dd in main (convert-songs)
+    var songs_in_dir = try get_song_names(path, gpa.allocator(), progress);
+                                         ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+ First free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:73:28: 0x12a293e in deinit (convert-songs)
+        self.allocator.free(self.year);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:154:22: 0x12c052f in search_track_threaded (convert-songs)
+    defer song.deinit();
+                     ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:233:39: 0x129bd14 in runFn (convert-songs)
+            @call(.auto, func, closure.arguments);
+                                      ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:295:32: 0x13bfba4 in worker (convert-songs)
+            run_node.data.runFn(&run_node.data, id);
+                               ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:488:13: 0x12d164d in callFn__anon_38386 (convert-songs)
+            @call(.auto, f, args);
+            ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:1378:30: 0x12bfff1 in entryFn (convert-songs)
+                return callFn(f, self.fn_args);
+                             ^
+ Second free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:73:28: 0x12a293e in deinit (convert-songs)
+        self.allocator.free(self.year);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:107:20: 0x12a0f34 in main (convert-songs)
+        song.deinit();
+                   ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+
+error(gpa): Double free detected. Allocation: 
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/mem/Allocator.zig:411:40: 0x12095b7 in dupe__anon_8640 (convert-songs)
+    const new_buf = try allocator.alloc(T, m.len);
+                                       ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:64:44: 0x1299e62 in build (convert-songs)
+            song.genre = try allocator.dupe(u8, nullbytedetect(metadata[c.GENRE_L..c.GENRE_R]));
+                                           ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:25:48: 0x129a6ab in get_song_names (convert-songs)
+            const song = try SongMetadata.build(bytes, allocator);
+                                               ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:81:42: 0x12a04dd in main (convert-songs)
+    var songs_in_dir = try get_song_names(path, gpa.allocator(), progress);
+                                         ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+ First free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:74:28: 0x12a295a in deinit (convert-songs)
+        self.allocator.free(self.genre);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:154:22: 0x12c052f in search_track_threaded (convert-songs)
+    defer song.deinit();
+                     ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:233:39: 0x129bd14 in runFn (convert-songs)
+            @call(.auto, func, closure.arguments);
+                                      ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:295:32: 0x13bfba4 in worker (convert-songs)
+            run_node.data.runFn(&run_node.data, id);
+                               ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:488:13: 0x12d164d in callFn__anon_38386 (convert-songs)
+            @call(.auto, f, args);
+            ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:1378:30: 0x12bfff1 in entryFn (convert-songs)
+                return callFn(f, self.fn_args);
+                             ^
+ Second free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:74:28: 0x12a295a in deinit (convert-songs)
+        self.allocator.free(self.genre);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:107:20: 0x12a0f34 in main (convert-songs)
+        song.deinit();
+                   ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+
+error(gpa): Double free detected. Allocation: 
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/mem/Allocator.zig:411:40: 0x12095b7 in dupe__anon_8640 (convert-songs)
+    const new_buf = try allocator.alloc(T, m.len);
+                                       ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:60:45: 0x12999da in build (convert-songs)
+            song.artist = try allocator.dupe(u8, nullbytedetect(metadata[c.ARTIST_L..c.ARTIST_R]));
+                                            ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:25:48: 0x129a6ab in get_song_names (convert-songs)
+            const song = try SongMetadata.build(bytes, allocator);
+                                               ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:81:42: 0x12a04dd in main (convert-songs)
+    var songs_in_dir = try get_song_names(path, gpa.allocator(), progress);
+                                         ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+ First free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:76:28: 0x12a2992 in deinit (convert-songs)
+        self.allocator.free(self.artist);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:154:22: 0x12c052f in search_track_threaded (convert-songs)
+    defer song.deinit();
+                     ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:233:39: 0x129bd14 in runFn (convert-songs)
+            @call(.auto, func, closure.arguments);
+                                      ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:295:32: 0x13bfba4 in worker (convert-songs)
+            run_node.data.runFn(&run_node.data, id);
+                               ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:488:13: 0x12d164d in callFn__anon_38386 (convert-songs)
+            @call(.auto, f, args);
+            ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:1378:30: 0x12bfff1 in entryFn (convert-songs)
+                return callFn(f, self.fn_args);
+                             ^
+ Second free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:76:28: 0x12a2992 in deinit (convert-songs)
+        self.allocator.free(self.artist);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:107:20: 0x12a0f34 in main (convert-songs)
+        song.deinit();
+                   ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+
+error(gpa): Double free detected. Allocation: 
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/mem/Allocator.zig:411:40: 0x12095b7 in dupe__anon_8640 (convert-songs)
+    const new_buf = try allocator.alloc(T, m.len);
+                                       ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:61:44: 0x1299afc in build (convert-songs)
+            song.album = try allocator.dupe(u8, nullbytedetect(metadata[c.ALBUM_L..c.ALBUM_R]));
+                                           ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:25:48: 0x129a6ab in get_song_names (convert-songs)
+            const song = try SongMetadata.build(bytes, allocator);
+                                               ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:81:42: 0x12a04dd in main (convert-songs)
+    var songs_in_dir = try get_song_names(path, gpa.allocator(), progress);
+                                         ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+ First free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:71:28: 0x12a2907 in deinit (convert-songs)
+        self.allocator.free(self.album);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:154:22: 0x12c052f in search_track_threaded (convert-songs)
+    defer song.deinit();
+                     ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:233:39: 0x129bd14 in runFn (convert-songs)
+            @call(.auto, func, closure.arguments);
+                                      ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:295:32: 0x13bfba4 in worker (convert-songs)
+            run_node.data.runFn(&run_node.data, id);
+                               ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:488:13: 0x12d164d in callFn__anon_38386 (convert-songs)
+            @call(.auto, f, args);
+            ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:1378:30: 0x12bfff1 in entryFn (convert-songs)
+                return callFn(f, self.fn_args);
+                             ^
+ Second free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:71:28: 0x12a2907 in deinit (convert-songs)
+        self.allocator.free(self.album);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:107:20: 0x12a0f34 in main (convert-songs)
+        song.deinit();
+                   ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+
+error(gpa): Double free detected. Allocation: 
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/mem/Allocator.zig:411:40: 0x12095b7 in dupe__anon_8640 (convert-songs)
+    const new_buf = try allocator.alloc(T, m.len);
+                                       ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:59:43: 0x12998b8 in build (convert-songs)
+            song.song = try allocator.dupe(u8, nullbytedetect(metadata[c.SONG_L..c.SONG_R]));
+                                          ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:25:48: 0x129a6ab in get_song_names (convert-songs)
+            const song = try SongMetadata.build(bytes, allocator);
+                                               ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:81:42: 0x12a04dd in main (convert-songs)
+    var songs_in_dir = try get_song_names(path, gpa.allocator(), progress);
+                                         ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+ First free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:72:28: 0x12a2922 in deinit (convert-songs)
+        self.allocator.free(self.song);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:154:22: 0x12c052f in search_track_threaded (convert-songs)
+    defer song.deinit();
+                     ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:233:39: 0x129bd14 in runFn (convert-songs)
+            @call(.auto, func, closure.arguments);
+                                      ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:295:32: 0x13bfba4 in worker (convert-songs)
+            run_node.data.runFn(&run_node.data, id);
+                               ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:488:13: 0x12d164d in callFn__anon_38386 (convert-songs)
+            @call(.auto, f, args);
+            ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:1378:30: 0x12bfff1 in entryFn (convert-songs)
+                return callFn(f, self.fn_args);
+                             ^
+ Second free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:72:28: 0x12a2922 in deinit (convert-songs)
+        self.allocator.free(self.song);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:107:20: 0x12a0f34 in main (convert-songs)
+        song.deinit();
+                   ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+
+error(gpa): Double free detected. Allocation: 
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/mem/Allocator.zig:411:40: 0x12095b7 in dupe__anon_8640 (convert-songs)
+    const new_buf = try allocator.alloc(T, m.len);
+                                       ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:62:43: 0x1299c1e in build (convert-songs)
+            song.year = try allocator.dupe(u8, nullbytedetect(metadata[c.YEAR_L..c.YEAR_R]));
+                                          ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:25:48: 0x129a6ab in get_song_names (convert-songs)
+            const song = try SongMetadata.build(bytes, allocator);
+                                               ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:81:42: 0x12a04dd in main (convert-songs)
+    var songs_in_dir = try get_song_names(path, gpa.allocator(), progress);
+                                         ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+ First free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:73:28: 0x12a293e in deinit (convert-songs)
+        self.allocator.free(self.year);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:154:22: 0x12c052f in search_track_threaded (convert-songs)
+    defer song.deinit();
+                     ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:233:39: 0x129bd14 in runFn (convert-songs)
+            @call(.auto, func, closure.arguments);
+                                      ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:295:32: 0x13bfba4 in worker (convert-songs)
+            run_node.data.runFn(&run_node.data, id);
+                               ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:488:13: 0x12d164d in callFn__anon_38386 (convert-songs)
+            @call(.auto, f, args);
+            ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:1378:30: 0x12bfff1 in entryFn (convert-songs)
+                return callFn(f, self.fn_args);
+                             ^
+ Second free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:73:28: 0x12a293e in deinit (convert-songs)
+        self.allocator.free(self.year);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:107:20: 0x12a0f34 in main (convert-songs)
+        song.deinit();
+                   ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+
+error(gpa): Double free detected. Allocation: 
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/mem/Allocator.zig:411:40: 0x12095b7 in dupe__anon_8640 (convert-songs)
+    const new_buf = try allocator.alloc(T, m.len);
+                                       ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:64:44: 0x1299e62 in build (convert-songs)
+            song.genre = try allocator.dupe(u8, nullbytedetect(metadata[c.GENRE_L..c.GENRE_R]));
+                                           ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:25:48: 0x129a6ab in get_song_names (convert-songs)
+            const song = try SongMetadata.build(bytes, allocator);
+                                               ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:81:42: 0x12a04dd in main (convert-songs)
+    var songs_in_dir = try get_song_names(path, gpa.allocator(), progress);
+                                         ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+ First free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:74:28: 0x12a295a in deinit (convert-songs)
+        self.allocator.free(self.genre);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:154:22: 0x12c052f in search_track_threaded (convert-songs)
+    defer song.deinit();
+                     ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:233:39: 0x129bd14 in runFn (convert-songs)
+            @call(.auto, func, closure.arguments);
+                                      ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:295:32: 0x13bfba4 in worker (convert-songs)
+            run_node.data.runFn(&run_node.data, id);
+                               ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:488:13: 0x12d164d in callFn__anon_38386 (convert-songs)
+            @call(.auto, f, args);
+            ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:1378:30: 0x12bfff1 in entryFn (convert-songs)
+                return callFn(f, self.fn_args);
+                             ^
+ Second free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:74:28: 0x12a295a in deinit (convert-songs)
+        self.allocator.free(self.genre);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:107:20: 0x12a0f34 in main (convert-songs)
+        song.deinit();
+                   ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+
+error(gpa): Double free detected. Allocation: 
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/mem/Allocator.zig:411:40: 0x12095b7 in dupe__anon_8640 (convert-songs)
+    const new_buf = try allocator.alloc(T, m.len);
+                                       ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:60:45: 0x12999da in build (convert-songs)
+            song.artist = try allocator.dupe(u8, nullbytedetect(metadata[c.ARTIST_L..c.ARTIST_R]));
+                                            ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:25:48: 0x129a6ab in get_song_names (convert-songs)
+            const song = try SongMetadata.build(bytes, allocator);
+                                               ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:81:42: 0x12a04dd in main (convert-songs)
+    var songs_in_dir = try get_song_names(path, gpa.allocator(), progress);
+                                         ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+ First free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:76:28: 0x12a2992 in deinit (convert-songs)
+        self.allocator.free(self.artist);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:154:22: 0x12c052f in search_track_threaded (convert-songs)
+    defer song.deinit();
+                     ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:233:39: 0x129bd14 in runFn (convert-songs)
+            @call(.auto, func, closure.arguments);
+                                      ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:295:32: 0x13bfba4 in worker (convert-songs)
+            run_node.data.runFn(&run_node.data, id);
+                               ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:488:13: 0x12d164d in callFn__anon_38386 (convert-songs)
+            @call(.auto, f, args);
+            ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:1378:30: 0x12bfff1 in entryFn (convert-songs)
+                return callFn(f, self.fn_args);
+                             ^
+ Second free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:76:28: 0x12a2992 in deinit (convert-songs)
+        self.allocator.free(self.artist);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:107:20: 0x12a0f34 in main (convert-songs)
+        song.deinit();
+                   ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+
+error(gpa): Double free detected. Allocation: 
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/mem/Allocator.zig:411:40: 0x12095b7 in dupe__anon_8640 (convert-songs)
+    const new_buf = try allocator.alloc(T, m.len);
+                                       ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:61:44: 0x1299afc in build (convert-songs)
+            song.album = try allocator.dupe(u8, nullbytedetect(metadata[c.ALBUM_L..c.ALBUM_R]));
+                                           ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:25:48: 0x129a6ab in get_song_names (convert-songs)
+            const song = try SongMetadata.build(bytes, allocator);
+                                               ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:81:42: 0x12a04dd in main (convert-songs)
+    var songs_in_dir = try get_song_names(path, gpa.allocator(), progress);
+                                         ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+ First free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:71:28: 0x12a2907 in deinit (convert-songs)
+        self.allocator.free(self.album);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:154:22: 0x12c052f in search_track_threaded (convert-songs)
+    defer song.deinit();
+                     ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:233:39: 0x129bd14 in runFn (convert-songs)
+            @call(.auto, func, closure.arguments);
+                                      ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:295:32: 0x13bfba4 in worker (convert-songs)
+            run_node.data.runFn(&run_node.data, id);
+                               ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:488:13: 0x12d164d in callFn__anon_38386 (convert-songs)
+            @call(.auto, f, args);
+            ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:1378:30: 0x12bfff1 in entryFn (convert-songs)
+                return callFn(f, self.fn_args);
+                             ^
+ Second free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:71:28: 0x12a2907 in deinit (convert-songs)
+        self.allocator.free(self.album);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:107:20: 0x12a0f34 in main (convert-songs)
+        song.deinit();
+                   ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+
+error(gpa): Double free detected. Allocation: 
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/mem/Allocator.zig:411:40: 0x12095b7 in dupe__anon_8640 (convert-songs)
+    const new_buf = try allocator.alloc(T, m.len);
+                                       ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:59:43: 0x12998b8 in build (convert-songs)
+            song.song = try allocator.dupe(u8, nullbytedetect(metadata[c.SONG_L..c.SONG_R]));
+                                          ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:25:48: 0x129a6ab in get_song_names (convert-songs)
+            const song = try SongMetadata.build(bytes, allocator);
+                                               ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:81:42: 0x12a04dd in main (convert-songs)
+    var songs_in_dir = try get_song_names(path, gpa.allocator(), progress);
+                                         ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+ First free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:72:28: 0x12a2922 in deinit (convert-songs)
+        self.allocator.free(self.song);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:154:22: 0x12c052f in search_track_threaded (convert-songs)
+    defer song.deinit();
+                     ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:233:39: 0x129bd14 in runFn (convert-songs)
+            @call(.auto, func, closure.arguments);
+                                      ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:295:32: 0x13bfba4 in worker (convert-songs)
+            run_node.data.runFn(&run_node.data, id);
+                               ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:488:13: 0x12d164d in callFn__anon_38386 (convert-songs)
+            @call(.auto, f, args);
+            ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:1378:30: 0x12bfff1 in entryFn (convert-songs)
+                return callFn(f, self.fn_args);
+                             ^
+ Second free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:72:28: 0x12a2922 in deinit (convert-songs)
+        self.allocator.free(self.song);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:107:20: 0x12a0f34 in main (convert-songs)
+        song.deinit();
+                   ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+
+error(gpa): Double free detected. Allocation: 
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/mem/Allocator.zig:411:40: 0x12095b7 in dupe__anon_8640 (convert-songs)
+    const new_buf = try allocator.alloc(T, m.len);
+                                       ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:62:43: 0x1299c1e in build (convert-songs)
+            song.year = try allocator.dupe(u8, nullbytedetect(metadata[c.YEAR_L..c.YEAR_R]));
+                                          ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:25:48: 0x129a6ab in get_song_names (convert-songs)
+            const song = try SongMetadata.build(bytes, allocator);
+                                               ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:81:42: 0x12a04dd in main (convert-songs)
+    var songs_in_dir = try get_song_names(path, gpa.allocator(), progress);
+                                         ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+ First free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:73:28: 0x12a293e in deinit (convert-songs)
+        self.allocator.free(self.year);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:154:22: 0x12c052f in search_track_threaded (convert-songs)
+    defer song.deinit();
+                     ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:233:39: 0x129bd14 in runFn (convert-songs)
+            @call(.auto, func, closure.arguments);
+                                      ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:295:32: 0x13bfba4 in worker (convert-songs)
+            run_node.data.runFn(&run_node.data, id);
+                               ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:488:13: 0x12d164d in callFn__anon_38386 (convert-songs)
+            @call(.auto, f, args);
+            ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:1378:30: 0x12bfff1 in entryFn (convert-songs)
+                return callFn(f, self.fn_args);
+                             ^
+ Second free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:73:28: 0x12a293e in deinit (convert-songs)
+        self.allocator.free(self.year);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:107:20: 0x12a0f34 in main (convert-songs)
+        song.deinit();
+                   ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+
+error(gpa): Double free detected. Allocation: 
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/mem/Allocator.zig:411:40: 0x12095b7 in dupe__anon_8640 (convert-songs)
+    const new_buf = try allocator.alloc(T, m.len);
+                                       ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:64:44: 0x1299e62 in build (convert-songs)
+            song.genre = try allocator.dupe(u8, nullbytedetect(metadata[c.GENRE_L..c.GENRE_R]));
+                                           ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:25:48: 0x129a6ab in get_song_names (convert-songs)
+            const song = try SongMetadata.build(bytes, allocator);
+                                               ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:81:42: 0x12a04dd in main (convert-songs)
+    var songs_in_dir = try get_song_names(path, gpa.allocator(), progress);
+                                         ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+ First free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:74:28: 0x12a295a in deinit (convert-songs)
+        self.allocator.free(self.genre);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:154:22: 0x12c052f in search_track_threaded (convert-songs)
+    defer song.deinit();
+                     ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:233:39: 0x129bd14 in runFn (convert-songs)
+            @call(.auto, func, closure.arguments);
+                                      ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:295:32: 0x13bfba4 in worker (convert-songs)
+            run_node.data.runFn(&run_node.data, id);
+                               ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:488:13: 0x12d164d in callFn__anon_38386 (convert-songs)
+            @call(.auto, f, args);
+            ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:1378:30: 0x12bfff1 in entryFn (convert-songs)
+                return callFn(f, self.fn_args);
+                             ^
+ Second free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:74:28: 0x12a295a in deinit (convert-songs)
+        self.allocator.free(self.genre);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:107:20: 0x12a0f34 in main (convert-songs)
+        song.deinit();
+                   ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+
+error(gpa): Double free detected. Allocation: 
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/mem/Allocator.zig:411:40: 0x12095b7 in dupe__anon_8640 (convert-songs)
+    const new_buf = try allocator.alloc(T, m.len);
+                                       ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:60:45: 0x12999da in build (convert-songs)
+            song.artist = try allocator.dupe(u8, nullbytedetect(metadata[c.ARTIST_L..c.ARTIST_R]));
+                                            ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:25:48: 0x129a6ab in get_song_names (convert-songs)
+            const song = try SongMetadata.build(bytes, allocator);
+                                               ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:81:42: 0x12a04dd in main (convert-songs)
+    var songs_in_dir = try get_song_names(path, gpa.allocator(), progress);
+                                         ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+ First free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:76:28: 0x12a2992 in deinit (convert-songs)
+        self.allocator.free(self.artist);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:154:22: 0x12c052f in search_track_threaded (convert-songs)
+    defer song.deinit();
+                     ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:233:39: 0x129bd14 in runFn (convert-songs)
+            @call(.auto, func, closure.arguments);
+                                      ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:295:32: 0x13bfba4 in worker (convert-songs)
+            run_node.data.runFn(&run_node.data, id);
+                               ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:488:13: 0x12d164d in callFn__anon_38386 (convert-songs)
+            @call(.auto, f, args);
+            ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:1378:30: 0x12bfff1 in entryFn (convert-songs)
+                return callFn(f, self.fn_args);
+                             ^
+ Second free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:76:28: 0x12a2992 in deinit (convert-songs)
+        self.allocator.free(self.artist);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:107:20: 0x12a0f34 in main (convert-songs)
+        song.deinit();
+                   ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+
+error(gpa): Double free detected. Allocation: 
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/mem/Allocator.zig:411:40: 0x12095b7 in dupe__anon_8640 (convert-songs)
+    const new_buf = try allocator.alloc(T, m.len);
+                                       ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:61:44: 0x1299afc in build (convert-songs)
+            song.album = try allocator.dupe(u8, nullbytedetect(metadata[c.ALBUM_L..c.ALBUM_R]));
+                                           ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:25:48: 0x129a6ab in get_song_names (convert-songs)
+            const song = try SongMetadata.build(bytes, allocator);
+                                               ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:81:42: 0x12a04dd in main (convert-songs)
+    var songs_in_dir = try get_song_names(path, gpa.allocator(), progress);
+                                         ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+ First free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:71:28: 0x12a2907 in deinit (convert-songs)
+        self.allocator.free(self.album);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:154:22: 0x12c052f in search_track_threaded (convert-songs)
+    defer song.deinit();
+                     ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:233:39: 0x129bd14 in runFn (convert-songs)
+            @call(.auto, func, closure.arguments);
+                                      ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:295:32: 0x13bfba4 in worker (convert-songs)
+            run_node.data.runFn(&run_node.data, id);
+                               ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:488:13: 0x12d164d in callFn__anon_38386 (convert-songs)
+            @call(.auto, f, args);
+            ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:1378:30: 0x12bfff1 in entryFn (convert-songs)
+                return callFn(f, self.fn_args);
+                             ^
+ Second free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:71:28: 0x12a2907 in deinit (convert-songs)
+        self.allocator.free(self.album);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:107:20: 0x12a0f34 in main (convert-songs)
+        song.deinit();
+                   ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+
+error(gpa): Double free detected. Allocation: 
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/mem/Allocator.zig:411:40: 0x12095b7 in dupe__anon_8640 (convert-songs)
+    const new_buf = try allocator.alloc(T, m.len);
+                                       ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:59:43: 0x12998b8 in build (convert-songs)
+            song.song = try allocator.dupe(u8, nullbytedetect(metadata[c.SONG_L..c.SONG_R]));
+                                          ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:25:48: 0x129a6ab in get_song_names (convert-songs)
+            const song = try SongMetadata.build(bytes, allocator);
+                                               ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:81:42: 0x12a04dd in main (convert-songs)
+    var songs_in_dir = try get_song_names(path, gpa.allocator(), progress);
+                                         ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+ First free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:72:28: 0x12a2922 in deinit (convert-songs)
+        self.allocator.free(self.song);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:154:22: 0x12c052f in search_track_threaded (convert-songs)
+    defer song.deinit();
+                     ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:233:39: 0x129bd14 in runFn (convert-songs)
+            @call(.auto, func, closure.arguments);
+                                      ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:295:32: 0x13bfba4 in worker (convert-songs)
+            run_node.data.runFn(&run_node.data, id);
+                               ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:488:13: 0x12d164d in callFn__anon_38386 (convert-songs)
+            @call(.auto, f, args);
+            ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:1378:30: 0x12bfff1 in entryFn (convert-songs)
+                return callFn(f, self.fn_args);
+                             ^
+ Second free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:72:28: 0x12a2922 in deinit (convert-songs)
+        self.allocator.free(self.song);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:107:20: 0x12a0f34 in main (convert-songs)
+        song.deinit();
+                   ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+
+error(gpa): Double free detected. Allocation: 
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/mem/Allocator.zig:411:40: 0x12095b7 in dupe__anon_8640 (convert-songs)
+    const new_buf = try allocator.alloc(T, m.len);
+                                       ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:62:43: 0x1299c1e in build (convert-songs)
+            song.year = try allocator.dupe(u8, nullbytedetect(metadata[c.YEAR_L..c.YEAR_R]));
+                                          ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:25:48: 0x129a6ab in get_song_names (convert-songs)
+            const song = try SongMetadata.build(bytes, allocator);
+                                               ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:81:42: 0x12a04dd in main (convert-songs)
+    var songs_in_dir = try get_song_names(path, gpa.allocator(), progress);
+                                         ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+ First free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:73:28: 0x12a293e in deinit (convert-songs)
+        self.allocator.free(self.year);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:154:22: 0x12c052f in search_track_threaded (convert-songs)
+    defer song.deinit();
+                     ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:233:39: 0x129bd14 in runFn (convert-songs)
+            @call(.auto, func, closure.arguments);
+                                      ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:295:32: 0x13bfba4 in worker (convert-songs)
+            run_node.data.runFn(&run_node.data, id);
+                               ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:488:13: 0x12d164d in callFn__anon_38386 (convert-songs)
+            @call(.auto, f, args);
+            ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:1378:30: 0x12bfff1 in entryFn (convert-songs)
+                return callFn(f, self.fn_args);
+                             ^
+ Second free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:73:28: 0x12a293e in deinit (convert-songs)
+        self.allocator.free(self.year);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:107:20: 0x12a0f34 in main (convert-songs)
+        song.deinit();
+                   ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+
+error(gpa): Double free detected. Allocation: 
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/mem/Allocator.zig:411:40: 0x12095b7 in dupe__anon_8640 (convert-songs)
+    const new_buf = try allocator.alloc(T, m.len);
+                                       ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:64:44: 0x1299e62 in build (convert-songs)
+            song.genre = try allocator.dupe(u8, nullbytedetect(metadata[c.GENRE_L..c.GENRE_R]));
+                                           ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:25:48: 0x129a6ab in get_song_names (convert-songs)
+            const song = try SongMetadata.build(bytes, allocator);
+                                               ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:81:42: 0x12a04dd in main (convert-songs)
+    var songs_in_dir = try get_song_names(path, gpa.allocator(), progress);
+                                         ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+ First free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:74:28: 0x12a295a in deinit (convert-songs)
+        self.allocator.free(self.genre);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:154:22: 0x12c052f in search_track_threaded (convert-songs)
+    defer song.deinit();
+                     ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:233:39: 0x129bd14 in runFn (convert-songs)
+            @call(.auto, func, closure.arguments);
+                                      ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:295:32: 0x13bfba4 in worker (convert-songs)
+            run_node.data.runFn(&run_node.data, id);
+                               ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:488:13: 0x12d164d in callFn__anon_38386 (convert-songs)
+            @call(.auto, f, args);
+            ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:1378:30: 0x12bfff1 in entryFn (convert-songs)
+                return callFn(f, self.fn_args);
+                             ^
+ Second free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:74:28: 0x12a295a in deinit (convert-songs)
+        self.allocator.free(self.genre);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:107:20: 0x12a0f34 in main (convert-songs)
+        song.deinit();
+                   ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+
+error(gpa): Double free detected. Allocation: 
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/mem/Allocator.zig:411:40: 0x12095b7 in dupe__anon_8640 (convert-songs)
+    const new_buf = try allocator.alloc(T, m.len);
+                                       ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:60:45: 0x12999da in build (convert-songs)
+            song.artist = try allocator.dupe(u8, nullbytedetect(metadata[c.ARTIST_L..c.ARTIST_R]));
+                                            ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:25:48: 0x129a6ab in get_song_names (convert-songs)
+            const song = try SongMetadata.build(bytes, allocator);
+                                               ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:81:42: 0x12a04dd in main (convert-songs)
+    var songs_in_dir = try get_song_names(path, gpa.allocator(), progress);
+                                         ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+ First free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:76:28: 0x12a2992 in deinit (convert-songs)
+        self.allocator.free(self.artist);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:154:22: 0x12c052f in search_track_threaded (convert-songs)
+    defer song.deinit();
+                     ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:233:39: 0x129bd14 in runFn (convert-songs)
+            @call(.auto, func, closure.arguments);
+                                      ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread/Pool.zig:295:32: 0x13bfba4 in worker (convert-songs)
+            run_node.data.runFn(&run_node.data, id);
+                               ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:488:13: 0x12d164d in callFn__anon_38386 (convert-songs)
+            @call(.auto, f, args);
+            ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/Thread.zig:1378:30: 0x12bfff1 in entryFn (convert-songs)
+                return callFn(f, self.fn_args);
+                             ^
+ Second free: 
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:76:28: 0x12a2992 in deinit (convert-songs)
+        self.allocator.free(self.artist);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:107:20: 0x12a0f34 in main (convert-songs)
+        song.deinit();
+                   ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+
+Segmentation fault at address 0x71b06f42000e
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/compiler_rt/memset.zig:19:14: 0x16b31a0 in memset (compiler_rt)
+            d[0] = c;
+             ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/mem/Allocator.zig:405:26: 0x120b405 in free__anon_8663 (convert-songs)
+    @memset(non_const_ptr[0..bytes_len], undefined);
+                         ^
+/home/gonik/Documents/git/convert-songs/src/walker/file_extractor.zig:71:28: 0x12a2907 in deinit (convert-songs)
+        self.allocator.free(self.album);
+                           ^
+/home/gonik/Documents/git/convert-songs/src/main.zig:107:20: 0x12a0f34 in main (convert-songs)
+        song.deinit();
+                   ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:656:37: 0x128236a in posixCallMainAndExit (convert-songs)
+            const result = root.main() catch |err| {
+                                    ^
+/home/gonik/.local/share/mise/installs/zig/0.14.0/lib/std/start.zig:271:5: 0x1281f1d in _start (convert-songs)
+    asm volatile (switch (native_arch) {
+    ^
+???:?:?: 0x0 in ??? (???)
+[1]    1824062 IOT instruction (core dumped)  ./zig-out/bin/convert-songs -p ../../../Music/Nicotine -n NuevaFastLongLeaks
