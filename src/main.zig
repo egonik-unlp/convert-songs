@@ -15,7 +15,12 @@ const ParseError = error{ ParseNameError, NoPathError };
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     var arena = std.heap.ArenaAllocator.init(gpa.allocator());
-    defer arena.deinit();
+
+    defer {
+        arena.deinit();
+        const status = gpa.deinit();
+        std.debug.print("Status at end: {any}", .{status});
+    }
 
     const params = comptime clap.parseParamsComptime(
         \\-h, --help             Display this help and exit.
@@ -82,12 +87,9 @@ pub fn main() !void {
     std.debug.print("Canciones son {d}\n", .{songs_in_dir.items.len});
     var song_results = std.ArrayList(TrackSearch).init(arena.allocator());
 
-    var file = try std.fs.cwd().createFile("logs", .{});
     const search_subnode = progress.start("Searching Tracks", songs_in_dir.items.len);
     defer search_subnode.end();
     defer songs_in_dir.deinit();
-    var pool: std.Thread.Pool = undefined;
-    try pool.init(.{ .allocator = arena.allocator(), .n_jobs = 8 });
     for (songs_in_dir.items) |song| {
         search_subnode.completeOne();
         const result = try TrackSearch.make_request(
@@ -97,13 +99,11 @@ pub fn main() !void {
             song.album,
             song.artist,
             2,
-            &file,
         );
-
         try song_results.append(result);
+        song.deinit();
     }
 
-    defer pool.deinit();
     std.debug.print("Se procesaron todas las canciones del directorio seleccionado\n", .{});
 
     // Wait for 0.5s for OAuth2 token
@@ -131,25 +131,4 @@ pub fn main() !void {
     try playlist.upload();
 
     std.debug.print("Done pushing playlist\n", .{});
-}
-fn search_track(
-    progress: std.Progress.Node,
-    results: *std.ArrayListAligned(TrackSearch, null),
-    song: SongMetadata,
-    file: *std.fs.File,
-    allocator: std.mem.Allocator,
-    tokener: *SerializedToken,
-) !void {
-    progress.completeOne();
-    const result = try TrackSearch.make_request(
-        allocator,
-        tokener,
-        song.song,
-        song.album,
-        song.artist,
-        2,
-        file,
-    );
-
-    results.append(result);
 }

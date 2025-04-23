@@ -5,3 +5,4 @@ zig-out/
 dump.a
 album.json
 *.txt
+FlameGraph/
