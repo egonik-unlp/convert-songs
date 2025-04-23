@@ -92,17 +92,20 @@ pub fn main() !void {
     var pool: std.Thread.Pool = undefined;
     const cpus = try std.Thread.getCpuCount();
     try pool.init(.{ .allocator = arena.allocator(), .n_jobs = cpus, .track_ids = true });
-    var logs = try std.fs.cwd().createFile("logs.logs", .{});
-    var global_state: GlobalState = .{ .lock = .{}, .results = &song_results, .progress = search_subnode, .logs = &logs, .errlock = .{} };
-    {
-        for (songs_in_dir.items, 0..) |song_query, job| {
-            try pool.spawn(search_track_threaded, .{ &global_state, arena.allocator(), &tokener, song_query });
-            if (job % 4 == 0) {
-                std.Thread.sleep(2_000_000_000);
-            }
+    var logs = try std.fs.cwd().createFile("logs.log", .{});
+    var wg = std.Thread.WaitGroup{};
+    var global_state: GlobalState = .{ .lock = .{}, .results = &song_results, .progress = search_subnode, .logs = &logs, .errlock = .{}, .wg = &wg };
+
+    for (songs_in_dir.items, 0..) |song_query, job| {
+        try pool.spawn(search_track_threaded, .{ &global_state, arena.allocator(), &tokener, song_query });
+        wg.start();
+        if (job % 4 == 0) {
+            std.Thread.sleep(2_000_000_000);
         }
-        defer pool.deinit();
     }
+    wg.wait();
+    defer pool.deinit();
+
     for (songs_in_dir.items) |song| {
         song.deinit();
     }
@@ -136,8 +139,6 @@ pub fn main() !void {
 }
 
 fn search_track_threaded(global_state: *GlobalState, allocator: std.mem.Allocator, tokener: *SerializedToken, song: SongMetadata) void {
-    defer global_state.progress.completeOne();
-
     const result = TrackSearch.make_request(
         allocator,
         tokener,
@@ -151,14 +152,18 @@ fn search_track_threaded(global_state: *GlobalState, allocator: std.mem.Allocato
         std.debug.print("Error en la busqueda del track {s} : {any}", .{ song.song, err });
         return;
     };
-    defer song.deinit();
-
     global_state.lock.lock();
+    defer {
+        song.deinit();
+        global_state.wg.finish();
+        global_state.lock.unlock();
+    }
+
     global_state.results.append(result) catch |err| {
         std.debug.print("Result gotten to but not finished :{any}\n", .{err});
         return;
     };
-    defer global_state.lock.unlock();
+    global_state.progress.completeOne();
 }
 
-const GlobalState = struct { lock: std.Thread.Mutex, results: *std.ArrayList(TrackSearch), progress: std.Progress.Node, logs: *std.fs.File, errlock: std.Thread.Mutex };
+const GlobalState = struct { lock: std.Thread.Mutex, results: *std.ArrayList(TrackSearch), progress: std.Progress.Node, logs: *std.fs.File, errlock: std.Thread.Mutex, wg: *std.Thread.WaitGroup };

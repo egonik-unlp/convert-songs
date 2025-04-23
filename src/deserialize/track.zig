@@ -110,10 +110,11 @@ pub const TrackSearchResult = struct {
             },
             else => |resp| std.debug.print("No se que paso, status de request es {any}\n", .{resp}),
         };
+        const pre_run = try std.fmt.allocPrint(allocator, "Pre try: \n{s}\n", .{local_buffer.items});
         errlock.lock();
         defer errlock.unlock();
         const response = std.json.parseFromSlice(TrackSearchResult, allocator, local_buffer.items, .{ .ignore_unknown_fields = true }) catch |err| {
-            const logged_error = try std.fmt.allocPrint(allocator, "Error parsing:\n ERR : {any}\nInput: {s}\n", .{ err, local_buffer.items });
+            const logged_error = try std.fmt.allocPrint(allocator, "Error parsing:\n ERR : {any}\nbuff {s}\nInput: {s}\n", .{ err, pre_run, local_buffer.items });
             try logs.writeAll(logged_error);
             return err;
         };
