@@ -22,6 +22,7 @@ There is not yet a way to really install the program and add it to path automati
 manually (linux instructions here).
 ```bash
 sudo wget https://github.com/egonik-unlp/convert-songs/releases/download/v0.2.4/convert-songs -O /opt/convert-songs
+sudo chmod +x "/opt/convert-songs"
 sudo ln -s /opt/convert-songs /usr/local/bin/convert-songs
 ```
 
