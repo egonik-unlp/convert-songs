@@ -68,6 +68,7 @@ pub const Playlist = struct {
         const contid = try std.json.parseFromSlice(SoloId, self.allocator, storage.items, .{ .ignore_unknown_fields = true });
 
         self.id = contid.value.id;
+        std.debug.print("PLAYLIST_ID:{s}\n", .{self.id});
     }
     pub fn populate(self: *Playlist, tracks: []TrackSearchResult, progress: std.Progress.Node) !void {
         var list = std.ArrayList([]u8).init(self.allocator);

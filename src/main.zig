@@ -13,13 +13,13 @@ const clap = @import("clap");
 const ParseError = error{ ParseNameError, NoPathError };
 
 pub fn main() !void {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    var gpa = std.heap.GeneralPurposeAllocator(.{ .stack_trace_frames = 10 }){};
     var arena = std.heap.ArenaAllocator.init(gpa.allocator());
 
     defer {
         arena.deinit();
         const status = gpa.deinit();
-        std.debug.print("Status at end: {any}", .{status});
+        std.debug.print("Status at end: {any}\n", .{status});
     }
 
     const params = comptime clap.parseParamsComptime(

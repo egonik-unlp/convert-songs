@@ -88,7 +88,7 @@ pub const TrackSearchResult = struct {
         const token = try tokener.retrieve();
         const bearer = try std.fmt.allocPrint(local_arena.allocator(), "Bearer {s}", .{token});
         var buffer: [4096]u8 = undefined;
-        var local_buffer = std.ArrayList(u8).init(allocator);
+        var local_buffer = std.ArrayList(u8).init(local_arena.allocator());
         const destination = try std.Uri.parse(query_url);
 
         const request = try client.fetch(.{
