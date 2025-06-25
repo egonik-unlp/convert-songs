@@ -28,7 +28,7 @@ sudo ln -s /opt/convert-songs /usr/local/bin/convert-songs
 
 To actually run the program, you can use its CLI.
 
-`/convert-songs -h`
+`./convert-songs -h`
 for help
 
 as an example, let's say your music is stored in /home/user/Music:
