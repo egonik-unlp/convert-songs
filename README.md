@@ -21,14 +21,21 @@ Namely:
 There is not yet a way to really install the program and add it to path automatically, but you can download it and add it 
 manually (linux instructions here).
 ```bash
+# Step I: Download latest release.
 sudo wget https://github.com/egonik-unlp/convert-songs/releases/download/v0.2.4/convert-songs -O /opt/convert-songs
+# Step II: Allow the binary to be executable.
 sudo chmod +x "/opt/convert-songs"
+### Step II (optional). Add the program to your PATH.
 sudo ln -s /opt/convert-songs /usr/local/bin/convert-songs
 ```
 
 To actually run the program, you can use its CLI.
 
+Run the command: 
 `./convert-songs -h`
+or 
+`convert-songs -h` if you did also step III.
+
 for help
 
 as an example, let's say your music is stored in /home/user/Music:
