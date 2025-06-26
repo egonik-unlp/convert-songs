@@ -15,13 +15,12 @@ const ParseError = error{ ParseNameError, NoPathError };
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{ .stack_trace_frames = 10 }){};
     var arena = std.heap.ArenaAllocator.init(gpa.allocator());
-
+    std.debug.print("Program running\n", .{});
     defer {
         arena.deinit();
         const status = gpa.deinit();
         std.debug.print("Status at end: {any}\n", .{status});
     }
-
     const params = comptime clap.parseParamsComptime(
         \\-h, --help             Display this help and exit.
         \\-d, --desc <str>       Playlist description.
@@ -71,14 +70,15 @@ pub fn main() !void {
 
     var tokener = try SerializedToken.init(arena.allocator());
     _ = try tokener.retrieve();
+    var waitgroup = std.Thread.WaitGroup{};
     var flow = try Oauth2Flow.build(8888, arena.allocator());
+    waitgroup.start();
     var thread = try flow.run();
     defer thread.join();
     defer flow.server.stop();
 
     const progress = std.Progress.start(.{ .root_name = "Procesando tracks" });
     defer progress.end();
-
     const songs_in_dir = try get_song_names(path, gpa.allocator(), progress);
     if (songs_in_dir.items.len == 0) {
         std.debug.print("No tracks detected", .{});
@@ -92,33 +92,12 @@ pub fn main() !void {
     defer songs_in_dir.deinit();
     for (songs_in_dir.items) |song| {
         search_subnode.completeOne();
-        const result = try TrackSearch.make_request(
-            arena.allocator(),
-            &tokener,
-            song.song,
-            song.album,
-            song.artist,
-            2,
-        );
+        const result = try TrackSearch.make_request(arena.allocator(), &tokener, song.song, song.album, song.artist, 2);
         try song_results.append(result);
         song.deinit();
     }
-
-    std.debug.print("Se procesaron todas las canciones del directorio seleccionado\n", .{});
-
-    // Wait for 0.5s for OAuth2 token
-    while (true) : (std.Thread.sleep(50000000)) {
-        flow.state.mutex.lock();
-        defer flow.state.mutex.unlock();
-        if (flow.state.token != null) {
-            break;
-        }
-    }
-    // ya nadie mas va a acceder al lock, igual lo hago "prolijo"
-    flow.state.mutex.lock();
-    defer flow.state.mutex.unlock();
     //
-
+    waitgroup.wait();
     var playlist = try Playlist.build(
         arena.allocator(),
 

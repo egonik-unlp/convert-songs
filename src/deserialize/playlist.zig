@@ -65,10 +65,13 @@ pub const Playlist = struct {
         var client = std.http.Client{ .allocator = self.allocator };
         const response = try client.fetch(options);
         _ = response;
+
         const contid = try std.json.parseFromSlice(SoloId, self.allocator, storage.items, .{ .ignore_unknown_fields = true });
 
         self.id = contid.value.id;
-        std.debug.print("PLAYLIST_ID:{s}\n", .{self.id});
+        // std.debug.print("PLAYLIST_ID:{s}\n", .{self.id});
+        var writer = std.io.getStdOut().writer();
+        try writer.print("{{ \"playlist_id\" : \"{s}\" }}\n", .{self.id});
     }
     pub fn populate(self: *Playlist, tracks: []TrackSearchResult, progress: std.Progress.Node) !void {
         var list = std.ArrayList([]u8).init(self.allocator);
@@ -124,7 +127,8 @@ pub const Playlist = struct {
             std.debug.print("\nBefore:\n\n {}-{}-{}\n\n\n", .{ so_far, next_chunk_len, remainder });
             so_far += next_chunk_len; // so_far = 100
             remainder -= next_chunk_len; // remainder = 53
-            next_chunk_len = @min(100, remainder); // next_chunk_len = 53
+            next_chunk_len = @min(100, remainder); // next_chunk_len = 5
+
             std.debug.print("\nAfter:\n\n {}-{}-{}\n\n\n", .{ so_far, next_chunk_len, remainder });
         }
     }
