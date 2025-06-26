@@ -4,7 +4,7 @@ const base64 = std.base64;
 const http = std.http;
 const compile_settings = @import("compile_settings");
 const env = @import("env.zig");
-const State = struct { mutex: std.Thread.Mutex, token: ?TokenResponse, state_string: ?[14]u8 };
+const State = struct { mutex: std.Thread.Mutex, token: ?TokenResponse, state_string: ?[14]u8, wg: std.Thread.WaitGroup };
 const REDIRECT_URI = if (compile_settings.remote) "http://convert-songs.work.gd:8888/callback" else "http://localhost:8888/callback";
 
 pub const Oauth2Flow = struct {
@@ -16,6 +16,7 @@ pub const Oauth2Flow = struct {
         var state = try allocator.create(State);
         state.token = null;
         state.mutex = .{};
+        state.wg = std.Thread.WaitGroup{};
         var server = try httpz.Server(*State).init(
             allocator,
             .{
@@ -32,6 +33,9 @@ pub const Oauth2Flow = struct {
     }
     pub fn run(self: *Oauth2Flow) !std.Thread {
         std.debug.print("\nOAuth 2 server running.\nOpen {s} to run oauth flow\n", .{REDIRECT_URI});
+        self.state.mutex.lock();
+        defer self.state.mutex.unlock();
+        self.state.wg.start();
         return try self.server.listenInNewThread();
     }
 };
@@ -132,6 +136,11 @@ fn login_handler(
     _ = headers;
 }
 fn callback_handler(state: *State, req: *httpz.Request, res: *httpz.Response) !void {
+    defer {
+        state.mutex.lock();
+        state.wg.finish();
+        state.mutex.unlock();
+    }
     const query = try req.query();
     const string_state = lift: {
         state.mutex.lock();

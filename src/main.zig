@@ -70,9 +70,7 @@ pub fn main() !void {
 
     var tokener = try SerializedToken.init(arena.allocator());
     _ = try tokener.retrieve();
-    var waitgroup = std.Thread.WaitGroup{};
     var flow = try Oauth2Flow.build(8888, arena.allocator());
-    waitgroup.start();
     var thread = try flow.run();
     defer thread.join();
     defer flow.server.stop();
@@ -96,8 +94,12 @@ pub fn main() !void {
         try song_results.append(result);
         song.deinit();
     }
-    //
-    waitgroup.wait();
+
+    //----------------------------------------------------------///
+    flow.state.mutex.lock();
+    flow.state.wg.wait();
+    flow.state.mutex.unlock();
+
     var playlist = try Playlist.build(
         arena.allocator(),
 
