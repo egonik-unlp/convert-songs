@@ -8,7 +8,12 @@ pub fn build(b: *std.Build) void {
     // what target to build for. Here we do not override the defaults, which
     // means any target is allowed, and the default is native. Other options
     // for restricting supported target set are available.
-    const target = b.standardTargetOptions(.{});
+    const target = b.standardTargetOptions(.{ .default_target = .{
+        .cpu_arch = .x86_64,
+        .os_tag = .linux,
+        .abi = .gnu,
+        .cpu_model = .baseline,
+    } });
 
     // Standard optimization options allow the person running `zig build` to select
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall. Here we do not
@@ -61,12 +66,7 @@ pub fn build(b: *std.Build) void {
     // standard location when the user invokes the "install" step (the default
     // step when running `zig build`).
     b.installArtifact(exe);
-
-    // This *creates* a Run step in the build graph, to be executed when another
-    // step is evaluated that depends on it. The next line below will establish
-    // such a dependency.
     const run_cmd = b.addRunArtifact(exe);
-
     // By making the run step depend on the install step, it will be run from the
     // installation directory rather than directly from within the cache directory.
     // This is not necessary, however, if the application depends on other installed
@@ -93,6 +93,12 @@ pub fn build(b: *std.Build) void {
     exe.root_module.addImport("playlist", playlist);
     playlist.addImport("track", track);
     const server = b.addModule("server", .{ .root_source_file = .{ .cwd_relative = "src/server/server.zig" } });
+
+    const remote = b.option(bool, "remote", "compile project as a remote backend") orelse false;
+    const options = b.addOptions();
+    options.addOption(bool, "remote", remote);
+    server.addOptions("compile_settings", options);
+
     exe.root_module.addImport("server", server);
 
     // This creates a build step. It will be visible in the `zig build --help` menu,

@@ -33,6 +33,7 @@ pub const Playlist = struct {
     allocator: std.mem.Allocator,
     token: []const u8,
     description: []const u8,
+    length: ?u32,
     pub fn build(allocator: std.mem.Allocator, name: []const u8, token: []const u8, description: []const u8) !Playlist {
         var playlist = try allocator.create(Playlist);
         playlist.allocator = allocator;
@@ -83,7 +84,8 @@ pub const Playlist = struct {
         }
         self.tracks = list.items;
     }
-    pub fn upload(self: Playlist) !void {
+    pub fn upload(self: *Playlist) !void {
+        self.length = 0;
         const total_tracks = self.tracks.len;
         var remainder: usize = @intCast(total_tracks);
         var next_chunk_len: usize = @min(100, remainder);
@@ -93,6 +95,7 @@ pub const Playlist = struct {
             const chunk = self.tracks[so_far..@intCast(so_far + next_chunk_len)];
             for (chunk) |track| {
                 if (!eql(u8, track, " ")) {
+                    self.length += 1;
                     try queue.append(track);
                 }
             }
