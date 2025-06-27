@@ -1,8 +1,6 @@
-.env
-*.env
-zig-out/
-.zig-cache/
-dump.a
-album.json
+FlameGraph*
+*.toml
 *.txt
-FlameGraph/
+*.a
+*.json
+*log*
