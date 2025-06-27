@@ -16,7 +16,7 @@ pub const Oauth2Flow = struct {
         var state = try allocator.create(State);
         state.token = null;
         state.mutex = .{};
-        state.wg = std.Thread.WaitGroup{};
+        state.wg = .{};
         var server = try httpz.Server(*State).init(
             allocator,
             .{
@@ -36,7 +36,11 @@ pub const Oauth2Flow = struct {
         self.state.mutex.lock();
         defer self.state.mutex.unlock();
         self.state.wg.start();
-        return try self.server.listenInNewThread();
+        return self.server.listenInNewThread() catch |err| {
+            std.debug.print("Error lauching server: {}", .{err});
+            self.state.wg.finish();
+            return err;
+        };
     }
 };
 fn default_endpoint(_: *State, req: *httpz.Request, res: *httpz.Response) !void {

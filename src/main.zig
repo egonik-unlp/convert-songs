@@ -97,6 +97,7 @@ pub fn main() !void {
 
     //----------------------------------------------------------///
     flow.state.mutex.lock();
+    std.debug.print("Waiting on login completion", .{});
     flow.state.wg.wait();
     flow.state.mutex.unlock();
 
