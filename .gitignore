@@ -4,3 +4,5 @@ FlameGraph*
 *.a
 *.json
 *log*
+src/.env
+.env

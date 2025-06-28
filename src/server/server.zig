@@ -2,10 +2,10 @@ const std = @import("std");
 const httpz = @import("httpz");
 const base64 = std.base64;
 const http = std.http;
-const compile_settings = @import("compile_settings");
+const compilation_options = @import("compilation_options");
 const env = @import("env.zig");
 const State = struct { mutex: std.Thread.Mutex, token: ?TokenResponse, state_string: ?[14]u8, wg: std.Thread.WaitGroup };
-const REDIRECT_URI = if (compile_settings.remote) "http://convert-songs.work.gd:8888/callback" else "http://localhost:8888/callback";
+const REDIRECT_URI = if (compilation_options.remote_compile) "http://convert-songs.work.gd:8888/callback" else "http://localhost:8888/callback";
 
 pub const Oauth2Flow = struct {
     port: u16,
@@ -33,14 +33,16 @@ pub const Oauth2Flow = struct {
     }
     pub fn run(self: *Oauth2Flow) !std.Thread {
         std.debug.print("\nOAuth 2 server running.\nOpen {s} to run oauth flow\n", .{REDIRECT_URI});
-        self.state.mutex.lock();
-        defer self.state.mutex.unlock();
         self.state.wg.start();
         return self.server.listenInNewThread() catch |err| {
             std.debug.print("Error lauching server: {}", .{err});
             self.state.wg.finish();
             return err;
         };
+    }
+    pub fn wait_and_close(self: *Oauth2Flow) void {
+        self.state.wg.wait();
+        self.server.stop();
     }
 };
 fn default_endpoint(_: *State, req: *httpz.Request, res: *httpz.Response) !void {
@@ -79,7 +81,6 @@ const QueryParams = struct {
     pub fn build(cid: []const u8, scope: []const u8, redirect_uri: []const u8, state: []const u8) QueryParams {
         return QueryParams{ .client_id = cid, .scope = scope, .state = state, .redirect_uri = redirect_uri };
     }
-    fn generate_string() !void {}
 };
 
 const TokenResponse = struct {
@@ -140,18 +141,12 @@ fn login_handler(
     _ = headers;
 }
 fn callback_handler(state: *State, req: *httpz.Request, res: *httpz.Response) !void {
-    defer {
-        state.mutex.lock();
-        state.wg.finish();
-        state.mutex.unlock();
-    }
     const query = try req.query();
     const string_state = lift: {
         state.mutex.lock();
         defer state.mutex.unlock();
         break :lift state.state_string orelse unreachable;
     };
-
     if (query.get("code")) |code| {
         const request_state = query.get("state") orelse "no anda esto";
         std.debug.print("del state viene {d} del request viene {d}\n", .{ request_state, string_state });
@@ -162,10 +157,14 @@ fn callback_handler(state: *State, req: *httpz.Request, res: *httpz.Response) !v
         res.status = 500;
         res.body = "Esta funcion no debe ser llamada sin argumentos";
     }
+    std.debug.print("Frontera de lo conocido\n", .{});
+    state.mutex.lock();
+    state.wg.finish();
+    state.mutex.unlock();
+    std.debug.print("Surpassed\n", .{});
     res.status = 200;
     res.body = "Autorizacion correcta";
 }
-
 fn request_token(code: []const u8, allocator: std.mem.Allocator, state: *State) !void {
     var client = http.Client{ .allocator = allocator };
     const body_ = TokenQueryParams{

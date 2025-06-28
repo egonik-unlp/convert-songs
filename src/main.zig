@@ -71,9 +71,7 @@ pub fn main() !void {
     var tokener = try SerializedToken.init(arena.allocator());
     _ = try tokener.retrieve();
     var flow = try Oauth2Flow.build(8888, arena.allocator());
-    var thread = try flow.run();
-    defer thread.join();
-    defer flow.server.stop();
+    _ = try flow.run();
 
     const progress = std.Progress.start(.{ .root_name = "Procesando tracks" });
     defer progress.end();
@@ -94,12 +92,10 @@ pub fn main() !void {
         try song_results.append(result);
         song.deinit();
     }
-
+    //---------------------Must Login to continue---------------///
     //----------------------------------------------------------///
-    flow.state.mutex.lock();
-    std.debug.print("Waiting on login completion", .{});
-    flow.state.wg.wait();
-    flow.state.mutex.unlock();
+    flow.wait_and_close();
+    std.debug.assert(flow.state.token != null);
 
     var playlist = try Playlist.build(
         arena.allocator(),
