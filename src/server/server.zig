@@ -3,7 +3,11 @@ const httpz = @import("httpz");
 const base64 = std.base64;
 const http = std.http;
 const env = @import("env.zig");
-const State = struct { mutex: std.Thread.Mutex, token: ?TokenResponse };
+const State = struct {
+    mutex: std.Thread.Mutex,
+    token: ?TokenResponse,
+    allocator: std.mem.Allocator,
+};
 const REDIRECT_URI = "http://localhost:8888/callback";
 pub const Oauth2Flow = struct {
     port: u16,
@@ -14,6 +18,7 @@ pub const Oauth2Flow = struct {
         var state = try allocator.create(State);
         state.token = null;
         state.mutex = .{};
+        state.allocator = allocator;
         var server = try httpz.Server(*State).init(allocator, .{ .port = port }, state);
         var router = try server.router(.{});
         router.get("/", handleta, .{});
@@ -149,9 +154,16 @@ fn request_token(code: []const u8, allocator: std.mem.Allocator, state: *State) 
     const result = try client.fetch(options);
     _ = result;
     // std.debug.print("Result = {any}\nResponse = {s}\n", .{ result.status, response_storage.items });
-    const token = try std.json.parseFromSlice(TokenResponse, allocator, response_storage.items, .{ .ignore_unknown_fields = true });
-    std.debug.print("Retrieved token = \n{any}\n", .{token.value});
+    const parsed = try std.json.parseFromSlice(TokenResponse, allocator, response_storage.items, .{ .ignore_unknown_fields = true });
+    std.debug.print("Retrieved token = \n{any}\n", .{parsed.value});
+    var token_copy = TokenResponse{
+        .access_token = try state.allocator.dupe(u8, parsed.value.access_token),
+        .token_type = try state.allocator.dupe(u8, parsed.value.token_type),
+        .expires_in = parsed.value.expires_in,
+        .refresh_token = try state.allocator.dupe(u8, parsed.value.refresh_token),
+        .scope = try state.allocator.dupe(u8, parsed.value.scope),
+    };
     state.mutex.lock();
-    state.token = token.value;
+    state.token = token_copy;
     state.mutex.unlock();
 }
