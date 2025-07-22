@@ -109,6 +109,13 @@ pub fn build(b: *std.Build) void {
     spotify_token.addImport("envfiles", envfiles_mod);
     track.addImport("spotify-token", spotify_token);
     playlist.addImport("spotify-token", spotify_token);
+
+    const compile_remote = b.option(bool, "remote", "Compile projectremote_compile for usage in remote site") orelse false;
+    const options = b.addOptions();
+
+    options.addOption(bool, "remote_compile", compile_remote);
+    server.addOptions("compilation_options", options);
+
     const run_step = b.step("run", "Run the app");
     run_step.dependOn(&run_cmd.step);
     // Creates a step for unit testing. This only builds the test executable

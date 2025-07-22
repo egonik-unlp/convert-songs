@@ -3,6 +3,9 @@ const eql = std.mem.eql;
 const c = @import("constants.zig");
 pub fn get_song_names(path: []const u8, allocator: std.mem.Allocator, progress: std.Progress.Node) !std.ArrayList(SongMetadata) {
     var dir = try std.fs.cwd().openDir(path, .{ .access_sub_paths = true, .iterate = true });
+    if (path[0] == 47) {
+        dir = try std.fs.openDirAbsolute(path, .{ .access_sub_paths = true, .iterate = true });
+    }
     var walker = try dir.walk(allocator);
     defer walker.deinit();
     var songs = std.ArrayList(SongMetadata).init(allocator);
@@ -17,13 +20,11 @@ pub fn get_song_names(path: []const u8, allocator: std.mem.Allocator, progress: 
             if (ext_iter.next() == null) {
                 continue;
             }
-
             const file_handle = try dir.openFile(pepe.path, .{ .mode = .read_write });
             defer file_handle.close();
             const bytes = try file_handle.readToEndAlloc(allocator, 1e10);
             defer allocator.free(bytes);
             const song = try SongMetadata.build(bytes, allocator);
-
             if (song != null) {
                 try songs.append(song.?);
             }
