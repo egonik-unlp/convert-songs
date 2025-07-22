@@ -29,10 +29,15 @@ pub const Oauth2Flow = struct {
         router.get("/", default_endpoint, .{});
         router.get("/login", login_handler, .{});
         router.get("/callback", callback_handler, .{});
+        router.get("/", default_endpoint, .{});
+        router.get("/get_login", login_handler, .{});
+        router.get("/callback", callback_handler, .{});
         return Oauth2Flow{ .port = port, .server = server, .allocator = allocator, .state = state };
     }
     pub fn run(self: *Oauth2Flow) !std.Thread {
         std.debug.print("\nOAuth 2 server running.\nOpen {s} to run oauth flow\n", .{REDIRECT_URI});
+        self.state.mutex.lock();
+        defer self.state.mutex.unlock();
         self.state.wg.start();
         return self.server.listenInNewThread() catch |err| {
             std.debug.print("Error lauching server: {}", .{err});
