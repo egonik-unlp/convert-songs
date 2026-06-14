@@ -102,8 +102,8 @@ fn get_token(allo: std.mem.Allocator) !TokenTuple {
 fn get_dotenv(allocator: std.mem.Allocator) ![2][]const u8 {
     // Read from the process environment (set by the host, e.g. Render env vars),
     // not a compile-time-embedded file. See src/server/env.zig.
-    const client_id = try std.process.getEnvVarOwned(allocator, "client_id");
-    const client_secret = try std.process.getEnvVarOwned(allocator, "client_secret");
+    const client_id = try std.process.getEnvVarOwned(allocator, "SPOTIFY_CLIENT_ID");
+    const client_secret = try std.process.getEnvVarOwned(allocator, "SPOTIFY_CLIENT_SECRET");
     return .{ client_id, client_secret };
 }
 test "holds token" {
