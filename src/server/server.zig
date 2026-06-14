@@ -129,7 +129,7 @@ fn login_handler(
     state.state_string = random_state;
     state.mutex.unlock();
     const qp = QueryParams.build(
-        env.client_id,
+        try env.clientId(response.arena),
         "playlist-modify-private playlist-modify-public",
         REDIRECT_URI,
         &random_state,
@@ -181,7 +181,7 @@ fn request_token(code: []const u8, allocator: std.mem.Allocator, state: *State) 
     const url = try std.Uri.parse("https://accounts.spotify.com/api/token");
     var buffer: [100]u8 = undefined;
     const encoder = base64.standard.Encoder;
-    const pre64 = try std.fmt.allocPrint(allocator, "{s}:{s}", .{ env.client_id, env.client_secret });
+    const pre64 = try std.fmt.allocPrint(allocator, "{s}:{s}", .{ try env.clientId(allocator), try env.clientSecret(allocator) });
     const preauth = encoder.encode(&buffer, pre64);
     const auth = try std.fmt.allocPrint(allocator, "Basic {s}", .{preauth});
     var response_storage = std.ArrayList(u8).init(allocator);

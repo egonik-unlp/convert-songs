@@ -33,7 +33,7 @@ pub const Playlist = struct {
     allocator: std.mem.Allocator,
     token: []const u8,
     description: []const u8,
-    length: ?u32,
+    length: u32,
     pub fn build(allocator: std.mem.Allocator, name: []const u8, token: []const u8, description: []const u8) !Playlist {
         var playlist = try allocator.create(Playlist);
         playlist.allocator = allocator;

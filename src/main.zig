@@ -13,6 +13,7 @@ const clap = @import("clap");
 const ParseError = error{ ParseNameError, NoPathError };
 
 pub fn main() !void {
+    // var allocator = std.heap.DebugAllocator(.{}){};
     var gpa = std.heap.GeneralPurposeAllocator(.{ .stack_trace_frames = 10 }){};
     var arena = std.heap.ArenaAllocator.init(gpa.allocator());
     std.debug.print("Program running\n", .{});
