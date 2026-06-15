@@ -26,6 +26,11 @@ pub fn build(b: *std.Build) void {
         .root_source_file = b.path("src/root.zig"),
         .target = target,
         .optimize = optimize,
+        // Link libc so env reads use libc's `environ`. This .so is dlopen'd by a
+        // non-Zig (Rust) host, so Zig's `std.start` never runs and `std.os.environ`
+        // stays empty — without libc, getEnvVarOwned() always returns
+        // EnvironmentVariableNotFound even when the var is set in the process env.
+        .link_libc = true,
     });
     const lib = b.addLibrary(.{
         .name = "convert-rs",
