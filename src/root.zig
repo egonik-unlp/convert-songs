@@ -208,3 +208,21 @@ fn createPlaylistImpl(token: []const u8, name: []const u8, description: []const 
     const url = try std.fmt.allocPrint(gpa, "https://open.spotify.com/playlist/{s}", .{playlist.id});
     return Str.fromSlice(url);
 }
+
+/// Diagnostic probe: attempt the client_credentials token flow and report the
+/// outcome as a human-readable string, so the UI can surface *why* search comes
+/// back empty (missing creds / TLS / bad secret) without needing host log access.
+/// Note: if a cached `dump.a` token exists and is still valid, this returns "OK"
+/// from the cache without re-hitting Spotify.
+export fn debug_probe() Str {
+    var tokener = SerializedToken.init(gpa) catch |err| {
+        const m = std.fmt.allocPrint(gpa, "token init FAILED: {s}", .{@errorName(err)}) catch return Str.fromSlice("token init FAILED");
+        return Str.fromSlice(m);
+    };
+    const tok = tokener.retrieve() catch |err| {
+        const m = std.fmt.allocPrint(gpa, "token retrieve FAILED: {s}", .{@errorName(err)}) catch return Str.fromSlice("token retrieve FAILED");
+        return Str.fromSlice(m);
+    };
+    const m = std.fmt.allocPrint(gpa, "token OK (len={d})", .{tok.len}) catch return Str.fromSlice("token OK");
+    return Str.fromSlice(m);
+}
